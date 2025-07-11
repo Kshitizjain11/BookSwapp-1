@@ -1,12 +1,11 @@
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import { BookOpen, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react"
+import Link from "next/link"
 
 export function Footer() {
   return (
-    <footer className="bg-muted/30 border-t">
+    <footer className="bg-muted/50 border-t">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
@@ -18,21 +17,20 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-muted-foreground">
-              Your local book marketplace. Buy, sell, and rent books from your community. Connect with fellow book
-              lovers and discover your next great read.
+              Your ultimate destination for buying, selling, and renting books. Join our community of book lovers today.
             </p>
-            <div className="flex space-x-2">
+            <div className="flex space-x-4">
               <Button variant="ghost" size="icon">
-                <Facebook className="h-4 w-4" />
+                <Facebook className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
-                <Twitter className="h-4 w-4" />
+                <Twitter className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
-                <Instagram className="h-4 w-4" />
+                <Instagram className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
-                <Youtube className="h-4 w-4" />
+                <Youtube className="h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -40,86 +38,85 @@ export function Footer() {
           {/* Quick Links */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
-            <nav className="flex flex-col space-y-2">
-              <Link href="/marketplace" className="text-muted-foreground hover:text-foreground transition-colors">
+            <div className="space-y-2">
+              <Link href="/marketplace" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Browse Books
               </Link>
-              <Link href="/sell" className="text-muted-foreground hover:text-foreground transition-colors">
-                Sell Books
-              </Link>
-              <Link href="/rent" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/rent" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Rent Books
               </Link>
-              <Link href="/community" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/community" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Community
               </Link>
-              <Link href="/map" className="text-muted-foreground hover:text-foreground transition-colors">
-                Local Map
+              <Link href="/sell" className="block text-muted-foreground hover:text-foreground transition-colors">
+                Sell Books
               </Link>
-            </nav>
+              <Link href="/about" className="block text-muted-foreground hover:text-foreground transition-colors">
+                About Us
+              </Link>
+            </div>
           </div>
 
           {/* Support */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Support</h3>
-            <nav className="flex flex-col space-y-2">
-              <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">
+            <div className="space-y-2">
+              <Link href="/help" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Help Center
               </Link>
-              <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/contact" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Contact Us
               </Link>
-              <Link href="/safety" className="text-muted-foreground hover:text-foreground transition-colors">
-                Safety Guidelines
+              <Link href="/shipping" className="block text-muted-foreground hover:text-foreground transition-colors">
+                Shipping Info
               </Link>
-              <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                Terms of Service
+              <Link href="/returns" className="block text-muted-foreground hover:text-foreground transition-colors">
+                Returns
               </Link>
-              <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                Privacy Policy
+              <Link href="/faq" className="block text-muted-foreground hover:text-foreground transition-colors">
+                FAQ
               </Link>
-            </nav>
+            </div>
           </div>
 
           {/* Newsletter */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Stay Updated</h3>
-            <p className="text-muted-foreground text-sm">Get the latest book recommendations and community updates.</p>
+            <p className="text-muted-foreground text-sm">
+              Subscribe to our newsletter for the latest book recommendations and community updates.
+            </p>
             <div className="space-y-2">
               <Input placeholder="Enter your email" />
               <Button className="w-full bg-amber-600 hover:bg-amber-700">Subscribe</Button>
             </div>
-
-            <div className="space-y-2 pt-4">
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4" />
-                <span>support@bookhub.com</span>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <Mail className="h-4 w-4 mr-2" />
+                support@bookhub.com
               </div>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4" />
-                <span>1-800-BOOKHUB</span>
+              <div className="flex items-center">
+                <Phone className="h-4 w-4 mr-2" />
+                +1 (555) 123-4567
               </div>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>Available nationwide</span>
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 mr-2" />
+                123 Book Street, Reading City
               </div>
             </div>
           </div>
         </div>
 
-        <Separator className="my-8" />
-
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="text-sm text-muted-foreground">© 2024 BookHub. All rights reserved.</div>
-          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-            <Link href="/terms" className="hover:text-foreground transition-colors">
-              Terms
+        <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-muted-foreground text-sm">© 2024 BookHub. All rights reserved.</p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+              Privacy Policy
             </Link>
-            <Link href="/privacy" className="hover:text-foreground transition-colors">
-              Privacy
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+              Terms of Service
             </Link>
-            <Link href="/cookies" className="hover:text-foreground transition-colors">
-              Cookies
+            <Link href="/cookies" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+              Cookie Policy
             </Link>
           </div>
         </div>

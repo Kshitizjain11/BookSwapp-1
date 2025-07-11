@@ -20,6 +20,8 @@ import {
   Sun,
   Bell,
   Scan,
+  Calendar,
+  Users,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 
@@ -148,19 +150,27 @@ export function Header() {
                   </div>
 
                   <nav className="flex flex-col space-y-2">
-                    <Link href="/marketplace" className="text-lg font-medium py-2 hover:text-amber-600">
+                    <Link
+                      href="/marketplace"
+                      className="text-lg font-medium py-2 hover:text-amber-600 flex items-center"
+                    >
+                      <BookOpen className="w-5 h-5 mr-3" />
                       Marketplace
                     </Link>
-                    <Link href="/rent" className="text-lg font-medium py-2 hover:text-amber-600">
+                    <Link href="/rent" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                      <Calendar className="w-5 h-5 mr-3" />
                       Rent Books
                     </Link>
-                    <Link href="/community" className="text-lg font-medium py-2 hover:text-amber-600">
+                    <Link href="/community" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                      <Users className="w-5 h-5 mr-3" />
                       Community
                     </Link>
-                    <Link href="/profile" className="text-lg font-medium py-2 hover:text-amber-600">
+                    <Link href="/profile" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                      <User className="w-5 h-5 mr-3" />
                       My Profile
                     </Link>
-                    <Link href="/wishlist" className="text-lg font-medium py-2 hover:text-amber-600">
+                    <Link href="/wishlist" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                      <Heart className="w-5 h-5 mr-3" />
                       Wishlist
                     </Link>
                   </nav>
