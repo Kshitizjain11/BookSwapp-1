@@ -1,12 +1,13 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
+import type React from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react"
 import { toast } from "@/components/ui/use-toast"
 
 interface WalletContextType {
   balance: number
   deposit: (amount: number) => void
-  withdraw: (amount: number) => boolean // Returns true if successful, false otherwise
+  withdraw: (amount: number) => boolean
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
@@ -14,11 +15,14 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined)
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [balance, setBalance] = useState<number>(0)
 
-  // Load balance from localStorage on initial load
+  // Load balance from localStorage on mount
   useEffect(() => {
     const storedBalance = localStorage.getItem("walletBalance")
     if (storedBalance) {
       setBalance(Number.parseFloat(storedBalance))
+    } else {
+      setBalance(100.0) // Initial mock balance
+      localStorage.setItem("walletBalance", "100.00")
     }
   }, [])
 
@@ -28,42 +32,31 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, [balance])
 
   const deposit = useCallback((amount: number) => {
-    if (amount <= 0) {
+    setBalance((prevBalance) => {
+      const newBalance = prevBalance + amount
       toast({
-        title: "Deposit Error",
-        description: "Deposit amount must be positive.",
-        variant: "destructive",
+        title: "Deposit Successful!",
+        description: `Successfully added $${amount.toFixed(2)} to your wallet. New balance: $${newBalance.toFixed(2)}.`,
+        variant: "success",
       })
-      return
-    }
-    setBalance((prevBalance) => prevBalance + amount)
-    toast({
-      title: "Deposit Successful",
-      description: `Successfully added $${amount.toFixed(2)} to your wallet.`,
+      return newBalance
     })
   }, [])
 
   const withdraw = useCallback(
     (amount: number) => {
-      if (amount <= 0) {
-        toast({
-          title: "Withdrawal Error",
-          description: "Withdrawal amount must be positive.",
-          variant: "destructive",
-        })
-        return false
-      }
       if (balance >= amount) {
         setBalance((prevBalance) => prevBalance - amount)
         toast({
-          title: "Withdrawal Successful",
+          title: "Payment Successful!",
           description: `Successfully paid $${amount.toFixed(2)} from your wallet.`,
+          variant: "success",
         })
         return true
       } else {
         toast({
           title: "Insufficient Funds",
-          description: "You do not have enough balance in your wallet.",
+          description: `Your wallet balance ($${balance.toFixed(2)}) is too low for this transaction ($${amount.toFixed(2)}).`,
           variant: "destructive",
         })
         return false
@@ -72,14 +65,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     [balance],
   )
 
-  const value = React.useMemo(
-    () => ({
-      balance,
-      deposit,
-      withdraw,
-    }),
-    [balance, deposit, withdraw],
-  )
+  const value = useMemo(() => ({ balance, deposit, withdraw }), [balance, deposit, withdraw])
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
 }

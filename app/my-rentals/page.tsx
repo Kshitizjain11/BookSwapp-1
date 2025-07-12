@@ -57,7 +57,7 @@ export default function MyRentalsPage() {
             <p className="text-muted-foreground mb-6">
               You haven't rented any books. Explore books available for rent!
             </p>
-            <Button asChild>
+            <Button asChild className="bg-amber-600 hover:bg-amber-700">
               <Link href="/marketplace">Browse Rentals</Link>
             </Button>
           </div>
@@ -104,11 +104,15 @@ export default function MyRentalsPage() {
                   </div>
                   <div className="flex justify-end gap-2 mt-4">
                     {rental.status === "Active" && (
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-amber-600 text-amber-600 hover:bg-amber-50 hover:text-amber-700 bg-transparent"
+                      >
                         Extend Rental
                       </Button>
                     )}
-                    <Button size="sm" asChild>
+                    <Button size="sm" asChild className="bg-amber-600 hover:bg-amber-700">
                       <Link href={`/book/${rental.bookId}`}>View Book</Link>
                     </Button>
                   </div>

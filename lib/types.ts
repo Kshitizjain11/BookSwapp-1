@@ -1,64 +1,77 @@
-export type Condition = "New" | "Like New" | "Good" | "Acceptable"
-
-export interface Book {
-  id: number
+import type React from "react"
+export type Book = {
+  id: string
   title: string
   author: string
-  price: number
-  rentPrice?: number
+  price?: number // Optional for books that are only for rent
+  rentPrice?: number // Optional for books that are only for sale
+  condition: string
+  genre: string
+  image: string
   rating: number
   reviews: number
-  condition: Condition
-  image: string
   seller: string
   location: string
-  isRentable: boolean
-  category: string
-  genre: string
-  publishYear: number
-  badges: string[]
-  isbn: string
-  publisher?: string
-  edition?: string
-  pages?: number
-  language?: string
+  delivery: boolean
+  pickup: boolean
 }
 
-export interface CartItem extends Book {
+export type CartItem = {
+  id: string
+  title: string
+  author: string
+  price: number // Price if buying
+  rentPrice?: number // Price per week if renting
+  image: string
+  condition: string
   quantity: number
-  type: "buy" | "rent" // Indicates if the item is for buying or renting
-  rentalDuration?: number // In days, if type is 'rent'
+  type: "buy" | "rent"
+  rentalDuration?: number // in weeks, only for rent type
+  seller: string
 }
 
-export interface Order {
+export type OrderItem = {
+  bookId: string
+  title: string
+  author: string
+  price: number // Actual price paid (either buy price or total rental price)
+  image: string
+  quantity: number
+  type: "buy" | "rent"
+  rentalDuration?: number // in weeks, only for rent type
+}
+
+export type Order = {
   id: string
-  items: {
-    bookId: number
-    title: string
-    author: string
-    price: number
-    image: string
-    quantity: number
-    type: "buy" | "rent"
-    rentalDuration?: number
-  }[]
+  items: OrderItem[]
   totalAmount: number
-  status: "Paid" | "Delivered" | "Shipped" | "Cancelled"
-  orderDate: string
+  status: "Paid" | "Shipped" | "Delivered" | "Cancelled"
+  orderDate: string // ISO string
   paymentMethod: "Credit Card" | "UPI" | "Wallet"
-  deliveryAddress?: string // For purchased books
+  deliveryAddress?: string
 }
 
-export interface Rental {
+export type Rental = {
   id: string
-  bookId: number
+  bookId: string
   title: string
   author: string
   image: string
-  rentalPrice: number
-  rentalDuration: number // In days
-  startDate: string
-  dueDate: string
-  status: "Active" | "Returned" | "Overdue" | "Cancelled"
+  rentalPrice: number // Price per week
+  rentalDuration: number // in weeks
+  startDate: string // ISO string
+  dueDate: string // ISO string
+  status: "Active" | "Overdue" | "Returned" | "Cancelled"
   seller: string
+}
+
+export type Notification = {
+  id: string
+  type: "order" | "rental" | "message" | "wishlist" | "seller"
+  icon: React.ReactNode
+  title: string
+  description: string
+  date: string // ISO string
+  link?: string
+  read: boolean
 }

@@ -42,12 +42,12 @@ export default function WalletPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Wallet className="h-6 w-6" />
+              <Wallet className="h-6 w-6 text-amber-600" />
               Current Balance
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-5xl font-bold text-green-600">{formatPrice(balance)}</div>
+            <div className="text-5xl font-bold text-amber-700">{formatPrice(balance)}</div>
             <p className="text-muted-foreground mt-2">Your available funds for purchases and rentals.</p>
           </CardContent>
         </Card>
@@ -55,7 +55,7 @@ export default function WalletPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PlusCircle className="h-6 w-6" />
+              <PlusCircle className="h-6 w-6 text-amber-600" />
               Recharge Wallet
             </CardTitle>
           </CardHeader>
@@ -70,6 +70,7 @@ export default function WalletPage() {
                 onChange={(e) => setDepositAmount(e.target.value)}
                 min="0.01"
                 step="0.01"
+                className="border-muted-foreground/20 focus:border-amber-500"
               />
             </div>
             <Button onClick={handleDeposit} className="w-full bg-amber-600 hover:bg-amber-700">
@@ -77,16 +78,32 @@ export default function WalletPage() {
               Add Funds
             </Button>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={() => setDepositAmount("10.00")}>
+              <Button
+                variant="outline"
+                onClick={() => setDepositAmount("10.00")}
+                className="border-amber-600 text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+              >
                 + $10
               </Button>
-              <Button variant="outline" onClick={() => setDepositAmount("25.00")}>
+              <Button
+                variant="outline"
+                onClick={() => setDepositAmount("25.00")}
+                className="border-amber-600 text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+              >
                 + $25
               </Button>
-              <Button variant="outline" onClick={() => setDepositAmount("50.00")}>
+              <Button
+                variant="outline"
+                onClick={() => setDepositAmount("50.00")}
+                className="border-amber-600 text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+              >
                 + $50
               </Button>
-              <Button variant="outline" onClick={() => setDepositAmount("100.00")}>
+              <Button
+                variant="outline"
+                onClick={() => setDepositAmount("100.00")}
+                className="border-amber-600 text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+              >
                 + $100
               </Button>
             </div>

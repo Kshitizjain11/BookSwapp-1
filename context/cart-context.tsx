@@ -1,20 +1,24 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
-import type { CartItem } from "@/lib/types"
+import { useMemo } from "react"
+
+import type React from "react"
+import { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { toast } from "@/components/ui/use-toast"
+import type { CartItem } from "@/lib/types"
 
 interface CartContextType {
   cartItems: CartItem[]
-  addToCart: (book: CartItem) => void
-  removeFromCart: (bookId: number, type: "buy" | "rent") => void
-  updateQuantity: (bookId: number, type: "buy" | "rent", quantity: number) => void
-  clearCart: () => void
+  saveForLaterItems: CartItem[]
+  addToCart: (item: CartItem) => void
+  removeFromCart: (id: string, type: "buy" | "rent") => void
+  updateQuantity: (id: string, type: "buy" | "rent", quantity: number) => void
   getCartTotal: () => number
   getCartItemCount: () => number
-  moveToSaveForLater: (bookId: number, type: "buy" | "rent") => void
-  saveForLaterItems: CartItem[]
-  moveToCart: (bookId: number, type: "buy" | "rent") => void
+  clearCart: () => void
+  moveToSaveForLater: (id: string, type: "buy" | "rent") => void
+  moveToCart: (id: string, type: "buy" | "rent") => void
+  setSaveForLaterItems: React.Dispatch<React.SetStateAction<CartItem[]>> // Expose setter for direct manipulation
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -23,7 +27,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [saveForLaterItems, setSaveForLaterItems] = useState<CartItem[]>([])
 
-  // Load cart from localStorage on initial load
+  // Load cart and save for later from localStorage on mount
   useEffect(() => {
     const storedCart = localStorage.getItem("cartItems")
     if (storedCart) {
@@ -35,7 +39,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Save cart to localStorage whenever it changes
+  // Save cart and save for later to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems))
   }, [cartItems])
@@ -44,55 +48,48 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("saveForLaterItems", JSON.stringify(saveForLaterItems))
   }, [saveForLaterItems])
 
-  const addToCart = useCallback((book: CartItem) => {
+  const addToCart = useCallback((item: CartItem) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (item) => item.id === book.id && item.type === book.type && item.rentalDuration === book.rentalDuration,
+      const existingItemIndex = prevItems.findIndex(
+        (i) => i.id === item.id && i.type === item.type && i.rentalDuration === item.rentalDuration,
       )
-      if (existingItem) {
-        toast({
-          title: "Item already in cart",
-          description: `${book.title} is already in your cart. Quantity updated.`,
-        })
-        return prevItems.map((item) =>
-          item.id === book.id && item.type === book.type && item.rentalDuration === book.rentalDuration
-            ? { ...item, quantity: item.quantity + book.quantity }
-            : item,
-        )
+
+      if (existingItemIndex > -1) {
+        const updatedItems = [...prevItems]
+        updatedItems[existingItemIndex].quantity += item.quantity
+        return updatedItems
       } else {
-        toast({
-          title: "Added to cart",
-          description: `${book.title} has been added to your cart.`,
-        })
-        return [...prevItems, { ...book, quantity: book.quantity || 1 }]
+        return [...prevItems, { ...item, quantity: item.quantity || 1 }]
       }
     })
   }, [])
 
-  const removeFromCart = useCallback((bookId: number, type: "buy" | "rent") => {
-    setCartItems((prevItems) => prevItems.filter((item) => !(item.id === bookId && item.type === type)))
-    toast({
-      title: "Item removed",
-      description: "The item has been removed from your cart.",
+  const removeFromCart = useCallback((id: string, type: "buy" | "rent") => {
+    setCartItems((prevItems) => {
+      const newItems = prevItems.filter((item) => !(item.id === id && item.type === type))
+      toast({
+        title: "Item Removed",
+        description: "The item has been removed from your cart.",
+        variant: "default",
+      })
+      return newItems
     })
   }, [])
 
-  const updateQuantity = useCallback((bookId: number, type: "buy" | "rent", quantity: number) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === bookId && item.type === type ? { ...item, quantity: Math.max(1, quantity) } : item,
-      ),
-    )
-  }, [])
-
-  const clearCart = useCallback(() => {
-    setCartItems([])
+  const updateQuantity = useCallback((id: string, type: "buy" | "rent", quantity: number) => {
+    setCartItems((prevItems) => {
+      return prevItems.map((item) =>
+        item.id === id && item.type === type
+          ? { ...item, quantity: Math.max(1, quantity) } // Ensure quantity is at least 1
+          : item,
+      )
+    })
   }, [])
 
   const getCartTotal = useCallback(() => {
     return cartItems.reduce((total, item) => {
-      const price = item.type === "rent" && item.rentalDuration ? item.rentPrice! * item.rentalDuration : item.price
-      return total + price * item.quantity
+      const itemPrice = item.type === "buy" ? item.price : (item.rentPrice || 0) * (item.rentalDuration || 1)
+      return total + itemPrice * item.quantity
     }, 0)
   }, [cartItems])
 
@@ -100,72 +97,87 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return cartItems.reduce((count, item) => count + item.quantity, 0)
   }, [cartItems])
 
-  const moveToSaveForLater = useCallback((bookId: number, type: "buy" | "rent") => {
+  const clearCart = useCallback(() => {
+    setCartItems([])
+  }, [])
+
+  const moveToSaveForLater = useCallback((id: string, type: "buy" | "rent") => {
     setCartItems((prevCart) => {
-      const itemToMove = prevCart.find((item) => item.id === bookId && item.type === type)
+      const itemToMove = prevCart.find((item) => item.id === id && item.type === type)
       if (itemToMove) {
-        setSaveForLaterItems((prevSave) => {
-          const existingSaveItem = prevSave.find((item) => item.id === bookId && item.type === type)
-          if (!existingSaveItem) {
+        setSaveForLaterItems((prevSFL) => {
+          // Check if already in save for later
+          const existsInSFL = prevSFL.some((sflItem) => sflItem.id === id && sflItem.type === type)
+          if (!existsInSFL) {
             toast({
               title: "Moved to Save for Later",
-              description: `${itemToMove.title} has been moved to your Save for Later list.`,
+              description: `${itemToMove.title} has been moved to your 'Saved for Later' list.`,
+              variant: "default",
             })
-            return [...prevSave, itemToMove]
+            return [...prevSFL, itemToMove]
           }
-          return prevSave
+          return prevSFL
         })
-        return prevCart.filter((item) => !(item.id === bookId && item.type === type))
+        return prevCart.filter((item) => !(item.id === id && item.type === type))
       }
       return prevCart
     })
   }, [])
 
-  const moveToCart = useCallback((bookId: number, type: "buy" | "rent") => {
-    setSaveForLaterItems((prevSave) => {
-      const itemToMove = prevSave.find((item) => item.id === bookId && item.type === type)
+  const moveToCart = useCallback((id: string, type: "buy" | "rent") => {
+    setSaveForLaterItems((prevSFL) => {
+      const itemToMove = prevSFL.find((item) => item.id === id && item.type === type)
       if (itemToMove) {
         setCartItems((prevCart) => {
-          const existingCartItem = prevCart.find((item) => item.id === bookId && item.type === type)
-          if (!existingCartItem) {
+          const existingItemIndex = prevCart.findIndex(
+            (i) =>
+              i.id === itemToMove.id && i.type === itemToMove.type && i.rentalDuration === itemToMove.rentalDuration,
+          )
+          if (existingItemIndex > -1) {
+            const updatedItems = [...prevCart]
+            updatedItems[existingItemIndex].quantity += itemToMove.quantity
+            return updatedItems
+          } else {
             toast({
               title: "Moved to Cart",
               description: `${itemToMove.title} has been moved back to your cart.`,
+              variant: "default",
             })
             return [...prevCart, itemToMove]
           }
-          return prevCart
         })
-        return prevSave.filter((item) => !(item.id === bookId && item.type === type))
+        return prevSFL.filter((item) => !(item.id === id && item.type === type))
       }
-      return prevSave
+      return prevSFL
     })
   }, [])
 
-  const value = React.useMemo(
+  const value = useMemo(
     () => ({
       cartItems,
+      saveForLaterItems,
       addToCart,
       removeFromCart,
       updateQuantity,
-      clearCart,
       getCartTotal,
       getCartItemCount,
+      clearCart,
       moveToSaveForLater,
-      saveForLaterItems,
       moveToCart,
+      setSaveForLaterItems,
     }),
     [
       cartItems,
+      saveForLaterItems,
       addToCart,
       removeFromCart,
       updateQuantity,
-      clearCart,
       getCartTotal,
       getCartItemCount,
+      clearCart,
       moveToSaveForLater,
-      saveForLaterItems,
       moveToCart,
+      setSaveForLaterItems,
     ],
   )
 

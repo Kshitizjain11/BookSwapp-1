@@ -44,7 +44,7 @@ export default function MyOrdersPage() {
             <p className="text-muted-foreground mb-6">
               You haven't placed any orders. Start exploring the marketplace!
             </p>
-            <Button asChild>
+            <Button asChild className="bg-amber-600 hover:bg-amber-700">
               <Link href="/marketplace">Browse Books</Link>
             </Button>
           </div>
@@ -106,7 +106,11 @@ export default function MyOrdersPage() {
                     )}
                   </div>
                   <div className="flex justify-end mt-6">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-amber-600 text-amber-600 hover:bg-amber-50 hover:text-amber-700 bg-transparent"
+                    >
                       View Receipt
                     </Button>
                   </div>

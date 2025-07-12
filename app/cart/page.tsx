@@ -65,7 +65,7 @@ export default function CartPage() {
               <ShoppingCart className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold mb-2">Your cart is empty</h3>
               <p className="text-muted-foreground mb-6">Looks like you haven't added anything to your cart yet.</p>
-              <Button asChild>
+              <Button asChild className="bg-amber-600 hover:bg-amber-700">
                 <Link href="/marketplace">Start Shopping</Link>
               </Button>
             </Card>
@@ -95,7 +95,7 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-8 w-8 bg-transparent"
+                          className="h-8 w-8 bg-transparent border-muted-foreground/20 hover:border-muted-foreground/40"
                           onClick={() => updateQuantity(item.id, item.type, item.quantity - 1)}
                           disabled={item.quantity <= 1}
                         >
@@ -111,7 +111,7 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-8 w-8 bg-transparent"
+                          className="h-8 w-8 bg-transparent border-muted-foreground/20 hover:border-muted-foreground/40"
                           onClick={() => updateQuantity(item.id, item.type, item.quantity + 1)}
                         >
                           <Plus className="h-4 w-4" />
@@ -132,6 +132,7 @@ export default function CartPage() {
                           size="icon"
                           onClick={() => moveToSaveForLater(item.id, item.type)}
                           title="Save for Later"
+                          className="text-muted-foreground hover:text-amber-600"
                         >
                           <Save className="h-4 w-4" />
                         </Button>
@@ -140,8 +141,9 @@ export default function CartPage() {
                           size="icon"
                           onClick={() => removeFromCart(item.id, item.type)}
                           title="Remove"
+                          className="text-red-500 hover:text-red-600"
                         >
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -181,7 +183,7 @@ export default function CartPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => moveToCart(item.id, item.type)}
-                          className="flex items-center gap-1"
+                          className="flex items-center gap-1 border-amber-600 text-amber-600 hover:bg-amber-50 hover:text-amber-700"
                         >
                           <ShoppingCart className="h-4 w-4" /> Move to Cart
                         </Button>
@@ -194,8 +196,9 @@ export default function CartPage() {
                             )
                           }
                           title="Remove from Save for Later"
+                          className="text-red-500 hover:text-red-600"
                         >
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -236,7 +239,7 @@ export default function CartPage() {
                   placeholder="Promo Code"
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
-                  className="pr-10"
+                  className="pr-10 border-muted-foreground/20 focus:border-amber-500"
                 />
                 <Button onClick={applyPromoCode} className="w-full bg-amber-600 hover:bg-amber-700">
                   Apply Promo Code
@@ -244,7 +247,7 @@ export default function CartPage() {
               </div>
               <Button
                 asChild
-                className="w-full text-lg py-6 bg-green-600 hover:bg-green-700"
+                className="w-full text-lg py-6 bg-amber-600 hover:bg-amber-700"
                 disabled={cartItems.length === 0}
               >
                 <Link href="/checkout">Proceed to Checkout</Link>

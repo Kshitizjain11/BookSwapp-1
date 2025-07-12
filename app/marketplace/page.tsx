@@ -1,690 +1,442 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Grid, List, MapPin, Star, Heart, ShoppingCart, Calendar, SlidersHorizontal } from "lucide-react"
-import Link from "next/link"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Filter, ChevronDown, Star, Calendar, ShoppingCart } from "lucide-react"
 import { useCart } from "@/context/cart-context"
-import type { CartItem } from "@/lib/types"
+import { toast } from "@/components/ui/use-toast"
+import type { Book } from "@/lib/types"
 
-const books = [
+const mockBooks: Book[] = [
   {
-    id: 1,
-    title: "The Midnight Library",
-    author: "Matt Haig",
-    price: 15.99,
-    rentPrice: 3.99,
-    rating: 4.8,
-    reviews: 1234,
-    condition: "Like New",
-    image: "/placeholder.svg?height=300&width=200",
-    seller: "BookLover123",
-    location: "2.3 miles away",
-    isRentable: true,
-    category: "Fiction",
-    genre: "Philosophy",
-    publishYear: 2020,
-    badges: ["Bestseller"],
-    isbn: "978-0525559474",
-  },
-  {
-    id: 2,
-    title: "Atomic Habits",
-    author: "James Clear",
-    price: 18.99,
-    rentPrice: 4.99,
-    rating: 4.9,
-    reviews: 2156,
-    condition: "Good",
-    image: "/placeholder.svg?height=300&width=200",
-    seller: "ReadingGuru",
-    location: "1.8 miles away",
-    isRentable: true,
-    category: "Self-Help",
-    genre: "Self-Help",
-    publishYear: 2018,
-    badges: ["Popular"],
-    isbn: "978-0735211292",
-  },
-  {
-    id: 3,
-    title: "Dune",
-    author: "Frank Herbert",
-    price: 22.99,
-    rentPrice: 5.99,
-    rating: 4.7,
-    reviews: 3421,
-    condition: "Very Good",
-    image: "/placeholder.svg?height=300&width=200",
-    seller: "SciFiFan",
-    location: "3.1 miles away",
-    isRentable: true,
-    category: "Fiction",
-    genre: "Science Fiction",
-    publishYear: 1965,
-    badges: ["Classic"],
-    isbn: "978-0441172719",
-  },
-  {
-    id: 4,
-    title: "The Psychology of Money",
-    author: "Morgan Housel",
-    price: 16.99,
-    rentPrice: 4.49,
-    rating: 4.6,
-    reviews: 1876,
-    condition: "Like New",
-    image: "/placeholder.svg?height=300&width=200",
-    seller: "FinanceReader",
-    location: "1.2 miles away",
-    isRentable: true,
-    category: "Business",
-    genre: "Finance",
-    publishYear: 2020,
-    badges: ["Trending"],
-    isbn: "978-0857197689",
-  },
-  {
-    id: 5,
-    title: "Project Hail Mary",
-    author: "Andy Weir",
-    price: 19.99,
-    rentPrice: 5.49,
-    rating: 4.9,
-    reviews: 2987,
-    condition: "New",
-    image: "/placeholder.svg?height=300&width=200",
-    seller: "BookCollector",
-    location: "2.7 miles away",
-    isRentable: false,
-    category: "Fiction",
-    genre: "Science Fiction",
-    publishYear: 2021,
-    badges: ["New Release"],
-    isbn: "978-0593135204",
-  },
-  {
-    id: 6,
-    title: "Educated",
-    author: "Tara Westover",
-    price: 14.99,
-    rentPrice: 3.99,
+    id: "1",
+    title: "The Great Gatsby",
+    author: "F. Scott Fitzgerald",
+    price: 12.99,
+    rentPrice: 3.0,
+    condition: "Used - Good",
+    genre: "Classic",
+    image: "/placeholder.jpg",
     rating: 4.5,
-    reviews: 4521,
-    condition: "Good",
-    image: "/placeholder.svg?height=300&width=200",
-    seller: "MemoirLover",
-    location: "4.1 miles away",
-    isRentable: true,
-    category: "Biography",
-    genre: "Memoir",
-    publishYear: 2018,
-    badges: ["Award Winner"],
-    isbn: "978-0399590504",
+    reviews: 120,
+    seller: "Bookworm Haven",
+    location: "New York, NY",
+    delivery: true,
+    pickup: true,
+  },
+  {
+    id: "2",
+    title: "1984",
+    author: "George Orwell",
+    price: 10.5,
+    rentPrice: 2.5,
+    condition: "New",
+    genre: "Dystopian",
+    image: "/placeholder.jpg",
+    rating: 4.8,
+    reviews: 200,
+    seller: "Literary Finds",
+    location: "Brooklyn, NY",
+    delivery: false,
+    pickup: true,
+  },
+  {
+    id: "3",
+    title: "To Kill a Mockingbird",
+    author: "Harper Lee",
+    price: 9.75,
+    rentPrice: 2.0,
+    condition: "Used - Fair",
+    genre: "Classic",
+    image: "/placeholder.jpg",
+    rating: 4.6,
+    reviews: 150,
+    seller: "Page Turner",
+    location: "Queens, NY",
+    delivery: true,
+    pickup: false,
+  },
+  {
+    id: "4",
+    title: "The Hobbit",
+    author: "J.R.R. Tolkien",
+    price: 15.0,
+    rentPrice: 3.5,
+    condition: "Used - Like New",
+    genre: "Fantasy",
+    image: "/placeholder.jpg",
+    rating: 4.9,
+    reviews: 300,
+    seller: "Fantasy Realm",
+    location: "Manhattan, NY",
+    delivery: true,
+    pickup: true,
+  },
+  {
+    id: "5",
+    title: "Pride and Prejudice",
+    author: "Jane Austen",
+    price: 8.99,
+    rentPrice: 1.8,
+    condition: "Used - Good",
+    genre: "Romance",
+    image: "/placeholder.jpg",
+    rating: 4.4,
+    reviews: 90,
+    seller: "Classic Reads",
+    location: "Bronx, NY",
+    delivery: false,
+    pickup: true,
+  },
+  {
+    id: "6",
+    title: "The Catcher in the Rye",
+    author: "J.D. Salinger",
+    price: 11.25,
+    rentPrice: 2.7,
+    condition: "New",
+    genre: "Literary Fiction",
+    image: "/placeholder.jpg",
+    rating: 4.2,
+    reviews: 110,
+    seller: "Modern Classics",
+    location: "Staten Island, NY",
+    delivery: true,
+    pickup: true,
   },
 ]
 
 export default function MarketplacePage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [priceRange, setPriceRange] = useState([0, 50])
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedGenre, setSelectedGenre] = useState("all")
-  const [selectedCondition, setSelectedCondition] = useState("all")
-  const [selectedAuthor, setSelectedAuthor] = useState("all")
-  const [sortBy, setSortBy] = useState("relevance")
-  const [showFilters, setShowFilters] = useState(false)
-  const [showRentableOnly, setShowRentableOnly] = useState(false)
-  const [showNearbyOnly, setShowNearbyOnly] = useState(false)
-  const [wishlistedBooks, setWishlistedBooks] = useState<number[]>([])
-
+  const [filters, setFilters] = useState({
+    genre: [],
+    priceRange: [0, 50],
+    condition: [],
+    type: "all", // 'all', 'buy', 'rent'
+    distance: 50,
+    availability: { delivery: false, pickup: false },
+  })
+  const [searchTerm, setSearchTerm] = useState("")
   const { addToCart } = useCart()
 
-  // Get unique values for filters
-  const categories = [...new Set(books.map((book) => book.category))]
-  const genres = [...new Set(books.map((book) => book.genre))]
-  const conditions = [...new Set(books.map((book) => book.condition))]
-  const authors = [...new Set(books.map((book) => book.author))]
-
-  // Filter and search logic
-  const filteredBooks = useMemo(() => {
-    return books.filter((book) => {
-      // Search filter
-      const matchesSearch =
-        searchQuery === "" ||
-        book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        book.isbn.includes(searchQuery) ||
-        book.genre.toLowerCase().includes(searchQuery.toLowerCase())
-
-      // Price filter
-      const matchesPrice = book.price >= priceRange[0] && book.price <= priceRange[1]
-
-      // Category filter
-      const matchesCategory = selectedCategory === "all" || book.category === selectedCategory
-
-      // Genre filter
-      const matchesGenre = selectedGenre === "all" || book.genre === selectedGenre
-
-      // Condition filter
-      const matchesCondition = selectedCondition === "all" || book.condition === selectedCondition
-
-      // Author filter
-      const matchesAuthor = selectedAuthor === "all" || book.author === selectedAuthor
-
-      // Rentable filter
-      const matchesRentable = !showRentableOnly || book.isRentable
-
-      // Nearby filter (simplified - in real app would use actual location)
-      const matchesNearby = !showNearbyOnly || Number.parseFloat(book.location.split(" ")[0]) <= 3
-
-      return (
-        matchesSearch &&
-        matchesPrice &&
-        matchesCategory &&
-        matchesGenre &&
-        matchesCondition &&
-        matchesAuthor &&
-        matchesRentable &&
-        matchesNearby
-      )
-    })
-  }, [
-    searchQuery,
-    priceRange,
-    selectedCategory,
-    selectedGenre,
-    selectedCondition,
-    selectedAuthor,
-    showRentableOnly,
-    showNearbyOnly,
-  ])
-
-  // Sort logic
-  const sortedBooks = useMemo(() => {
-    const sorted = [...filteredBooks]
-    switch (sortBy) {
-      case "price-low":
-        return sorted.sort((a, b) => a.price - b.price)
-      case "price-high":
-        return sorted.sort((a, b) => b.price - a.price)
-      case "rating":
-        return sorted.sort((a, b) => b.rating - a.rating)
-      case "newest":
-        return sorted.sort((a, b) => b.publishYear - a.publishYear)
-      case "distance":
-        return sorted.sort(
-          (a, b) => Number.parseFloat(a.location.split(" ")[0]) - Number.parseFloat(b.location.split(" ")[0]),
-        )
-      default:
-        return sorted
-    }
-  }, [filteredBooks, sortBy])
-
-  const toggleWishlist = (bookId: number) => {
-    setWishlistedBooks((prev) => (prev.includes(bookId) ? prev.filter((id) => id !== bookId) : [...prev, bookId]))
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleAddToCart = (book: (typeof books)[0], type: "buy" | "rent", rentalDuration?: number) => {
-    const cartItem: CartItem = {
-      ...book,
+  const handleCheckboxFilter = (key: string, value: string) => {
+    setFilters((prev) => {
+      const currentArray = prev[key as keyof typeof prev] as string[]
+      if (currentArray.includes(value)) {
+        return { ...prev, [key]: currentArray.filter((item) => item !== value) }
+      } else {
+        return { ...prev, [key]: [...currentArray, value] }
+      }
+    })
+  }
+
+  const handleAvailabilityFilter = (key: "delivery" | "pickup") => {
+    setFilters((prev) => ({
+      ...prev,
+      availability: { ...prev.availability, [key]: !prev.availability[key] },
+    }))
+  }
+
+  const filteredBooks = mockBooks.filter((book) => {
+    const matchesSearch =
+      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const matchesGenre = filters.genre.length === 0 || filters.genre.includes(book.genre)
+
+    const matchesPrice = book.price >= filters.priceRange[0] && book.price <= filters.priceRange[1]
+
+    const matchesCondition = filters.condition.length === 0 || filters.condition.includes(book.condition)
+
+    const matchesType =
+      filters.type === "all" ||
+      (filters.type === "buy" && book.price !== undefined) ||
+      (filters.type === "rent" && book.rentPrice !== undefined)
+
+    const matchesAvailability =
+      (!filters.availability.delivery || book.delivery) && (!filters.availability.pickup || book.pickup)
+
+    // Distance filter is simulated, assuming all mock books are within 50 miles
+    const matchesDistance = filters.distance >= 50 || true // Always true for mock data
+
+    return (
+      matchesSearch &&
+      matchesGenre &&
+      matchesPrice &&
+      matchesCondition &&
+      matchesType &&
+      matchesAvailability &&
+      matchesDistance
+    )
+  })
+
+  const allGenres = Array.from(new Set(mockBooks.map((book) => book.genre)))
+  const allConditions = Array.from(new Set(mockBooks.map((book) => book.condition)))
+
+  const handleAddToCart = (book: Book, type: "buy" | "rent", rentalDuration?: number) => {
+    addToCart({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      price: book.price,
+      rentPrice: book.rentPrice,
+      image: book.image,
+      condition: book.condition,
       quantity: 1,
       type,
       rentalDuration,
-    }
-    addToCart(cartItem)
-  }
-
-  const clearFilters = () => {
-    setSearchQuery("")
-    setPriceRange([0, 50])
-    setSelectedCategory("all")
-    setSelectedGenre("all")
-    setSelectedCondition("all")
-    setSelectedAuthor("all")
-    setShowRentableOnly(false)
-    setShowNearbyOnly(false)
+      seller: book.seller,
+    })
+    toast({
+      title: "Added to Cart!",
+      description: `${book.title} has been added to your cart.`,
+      variant: "success",
+    })
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="bg-muted/30 border-b">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Book Marketplace</h1>
-          <p className="text-muted-foreground mb-6">Discover amazing books from your local community</p>
-
-          {/* Search Bar */}
-          <div className="flex gap-4 max-w-2xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search books, authors, ISBN, genres..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <Button className="bg-amber-600 hover:bg-amber-700">
-              <Search className="w-4 h-4 mr-2" />
-              Search
-            </Button>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Book Marketplace</h1>
+          <p className="text-muted-foreground">Discover your next favorite read.</p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-8">
-          {/* Filters Sidebar */}
-          <div className={`w-80 space-y-6 ${showFilters ? "block" : "hidden lg:block"}`}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold">Filters</h3>
-                  <Button variant="ghost" size="sm" onClick={clearFilters}>
-                    Clear All
-                  </Button>
+      <div className="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Filters Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Filter className="w-5 h-5" /> Filters
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-2">Search</h3>
+                  <Input
+                    placeholder="Search by title or author..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
 
-                {/* Category Filter */}
-                <div className="space-y-3 mb-6">
-                  <label className="text-sm font-medium">Category</label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div>
+                  <h3 className="font-semibold mb-2">Book Type</h3>
+                  <div className="flex space-x-4">
+                    <Button
+                      variant={filters.type === "all" ? "default" : "outline"}
+                      onClick={() => handleFilterChange("type", "all")}
+                      className={filters.type === "all" ? "bg-amber-600 hover:bg-amber-700" : ""}
+                    >
+                      All
+                    </Button>
+                    <Button
+                      variant={filters.type === "buy" ? "default" : "outline"}
+                      onClick={() => handleFilterChange("type", "buy")}
+                      className={filters.type === "buy" ? "bg-amber-600 hover:bg-amber-700" : ""}
+                    >
+                      Buy
+                    </Button>
+                    <Button
+                      variant={filters.type === "rent" ? "default" : "outline"}
+                      onClick={() => handleFilterChange("type", "rent")}
+                      className={filters.type === "rent" ? "bg-amber-600 hover:bg-amber-700" : ""}
+                    >
+                      Rent
+                    </Button>
+                  </div>
                 </div>
 
-                {/* Genre Filter */}
-                <div className="space-y-3 mb-6">
-                  <label className="text-sm font-medium">Genre</label>
-                  <Select value={selectedGenre} onValueChange={setSelectedGenre}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Genres" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Genres</SelectItem>
-                      {genres.map((genre) => (
-                        <SelectItem key={genre} value={genre}>
+                <div>
+                  <h3 className="font-semibold mb-2">Genre</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {allGenres.map((genre) => (
+                      <div key={genre} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`genre-${genre}`}
+                          checked={filters.genre.includes(genre)}
+                          onCheckedChange={() => handleCheckboxFilter("genre", genre)}
+                        />
+                        <label
+                          htmlFor={`genre-${genre}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
                           {genre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Author Filter */}
-                <div className="space-y-3 mb-6">
-                  <label className="text-sm font-medium">Author</label>
-                  <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Authors" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Authors</SelectItem>
-                      {authors.map((author) => (
-                        <SelectItem key={author} value={author}>
-                          {author}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Price Range */}
-                <div className="space-y-3 mb-6">
-                  <label className="text-sm font-medium">Price Range</label>
-                  <Slider value={priceRange} onValueChange={setPriceRange} max={50} step={1} className="w-full" />
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}</span>
-                  </div>
-                </div>
-
-                {/* Condition Filter */}
-                <div className="space-y-3 mb-6">
-                  <label className="text-sm font-medium">Condition</label>
-                  <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Conditions" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Conditions</SelectItem>
-                      {conditions.map((condition) => (
-                        <SelectItem key={condition} value={condition}>
-                          {condition}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Availability */}
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Availability</label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="for-rent" checked={showRentableOnly} onCheckedChange={setShowRentableOnly} />
-                      <label htmlFor="for-rent" className="text-sm">
-                        Rentable Only
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="nearby" checked={showNearbyOnly} onCheckedChange={setShowNearbyOnly} />
-                      <label htmlFor="nearby" className="text-sm">
-                        Nearby Only (within 3 miles)
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Controls */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="lg:hidden bg-transparent"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <SlidersHorizontal className="w-4 h-4 mr-2" />
-                  Filters
-                </Button>
-                <span className="text-muted-foreground">
-                  Showing {sortedBooks.length} of {books.length} results
-                </span>
-                {(searchQuery ||
-                  selectedCategory !== "all" ||
-                  selectedGenre !== "all" ||
-                  selectedCondition !== "all" ||
-                  selectedAuthor !== "all" ||
-                  showRentableOnly ||
-                  showNearbyOnly ||
-                  priceRange[0] > 0 ||
-                  priceRange[1] < 50) && <Badge variant="secondary">Filters applied</Badge>}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="relevance">Most Relevant</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="rating">Highest Rated</SelectItem>
-                    <SelectItem value="newest">Newest First</SelectItem>
-                    <SelectItem value="distance">Nearest First</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <div className="flex border rounded-md">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("grid")}
-                  >
-                    <Grid className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("list")}
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Books Grid/List */}
-            <Tabs value="all" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="all">All Books</TabsTrigger>
-                <TabsTrigger value="sale">For Sale</TabsTrigger>
-                <TabsTrigger value="rent">For Rent</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="all">
-                {sortedBooks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Search className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">No books found</h3>
-                    <p className="text-muted-foreground mb-6">Try adjusting your search terms or filters</p>
-                    <Button onClick={clearFilters}>Clear Filters</Button>
-                  </div>
-                ) : (
-                  <div
-                    className={
-                      viewMode === "grid"
-                        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                        : "space-y-4"
-                    }
-                  >
-                    {sortedBooks.map((book) => (
-                      <Card
-                        key={book.id}
-                        className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                      >
-                        <CardContent className="p-0">
-                          {viewMode === "grid" ? (
-                            <>
-                              <div className="relative overflow-hidden rounded-t-lg">
-                                <img
-                                  src={book.image || "/placeholder.svg"}
-                                  alt={book.title}
-                                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                                />
-
-                                {/* Badges */}
-                                <div className="absolute top-2 left-2 flex flex-col gap-1">
-                                  {book.badges.map((badge, index) => (
-                                    <Badge key={index} className="text-xs bg-amber-500 hover:bg-amber-600">
-                                      {badge}
-                                    </Badge>
-                                  ))}
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button
-                                    size="icon"
-                                    variant="secondary"
-                                    onClick={() => toggleWishlist(book.id)}
-                                    className={wishlistedBooks.includes(book.id) ? "bg-red-100 text-red-600" : ""}
-                                  >
-                                    <Heart
-                                      className={`w-4 h-4 ${wishlistedBooks.includes(book.id) ? "fill-current" : ""}`}
-                                    />
-                                  </Button>
-                                  <Button size="icon" variant="secondary" asChild>
-                                    <Link href="/map">
-                                      <MapPin className="w-4 h-4" />
-                                    </Link>
-                                  </Button>
-                                </div>
-                              </div>
-
-                              <div className="p-4 space-y-3">
-                                <div>
-                                  <h3 className="font-semibold text-lg line-clamp-1">{book.title}</h3>
-                                  <p className="text-muted-foreground text-sm">{book.author}</p>
-                                </div>
-
-                                <div className="flex items-center space-x-2">
-                                  <div className="flex items-center">
-                                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                    <span className="text-sm font-medium ml-1">{book.rating}</span>
-                                  </div>
-                                  <span className="text-xs text-muted-foreground">({book.reviews})</span>
-                                  <Badge variant="outline" className="text-xs">
-                                    {book.condition}
-                                  </Badge>
-                                </div>
-
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-2xl font-bold text-green-600">${book.price}</span>
-                                    {book.isRentable && (
-                                      <span className="text-sm text-blue-600">Rent: ${book.rentPrice}/week</span>
-                                    )}
-                                  </div>
-
-                                  <div className="text-xs text-muted-foreground">
-                                    <p>Seller: {book.seller}</p>
-                                    <p className="flex items-center">
-                                      <MapPin className="w-3 h-3 mr-1" />
-                                      {book.location}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-2 pt-2">
-                                  <Button
-                                    size="sm"
-                                    className="flex-1 bg-amber-600 hover:bg-amber-700"
-                                    onClick={() => handleAddToCart(book, "buy")}
-                                  >
-                                    <ShoppingCart className="w-4 h-4 mr-1" />
-                                    Buy
-                                  </Button>
-                                  {book.isRentable && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="flex-1 bg-transparent"
-                                      onClick={() => handleAddToCart(book, "rent", 7)}
-                                    >
-                                      <Calendar className="w-4 h-4 mr-1" />
-                                      Rent
-                                    </Button>
-                                  )}
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="flex p-4 space-x-4">
-                              <img
-                                src={book.image || "/placeholder.svg"}
-                                alt={book.title}
-                                className="w-24 h-32 object-cover rounded"
-                              />
-                              <div className="flex-1 space-y-2">
-                                <div className="flex items-start justify-between">
-                                  <div>
-                                    <h3 className="font-semibold text-lg">{book.title}</h3>
-                                    <p className="text-muted-foreground">{book.author}</p>
-                                  </div>
-                                  <div className="flex gap-1">
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      onClick={() => toggleWishlist(book.id)}
-                                      className={wishlistedBooks.includes(book.id) ? "text-red-600" : ""}
-                                    >
-                                      <Heart
-                                        className={`w-4 h-4 ${wishlistedBooks.includes(book.id) ? "fill-current" : ""}`}
-                                      />
-                                    </Button>
-                                    <Button size="icon" variant="ghost" asChild>
-                                      <Link href="/map">
-                                        <MapPin className="w-4 h-4" />
-                                      </Link>
-                                    </Button>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center space-x-4">
-                                  <div className="flex items-center">
-                                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                    <span className="text-sm font-medium ml-1">{book.rating}</span>
-                                    <span className="text-xs text-muted-foreground ml-1">({book.reviews})</span>
-                                  </div>
-                                  <Badge variant="outline" className="text-xs">
-                                    {book.condition}
-                                  </Badge>
-                                  {book.badges.map((badge, index) => (
-                                    <Badge key={index} className="text-xs bg-amber-500">
-                                      {badge}
-                                    </Badge>
-                                  ))}
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <span className="text-2xl font-bold text-green-600">${book.price}</span>
-                                    {book.isRentable && (
-                                      <span className="text-sm text-blue-600 ml-4">Rent: ${book.rentPrice}/week</span>
-                                    )}
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      size="sm"
-                                      className="bg-amber-600 hover:bg-amber-700"
-                                      onClick={() => handleAddToCart(book, "buy")}
-                                    >
-                                      <ShoppingCart className="w-4 h-4 mr-1" />
-                                      Buy
-                                    </Button>
-                                    {book.isRentable && (
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handleAddToCart(book, "rent", 7)}
-                                      >
-                                        <Calendar className="w-4 h-4 mr-1" />
-                                        Rent
-                                      </Button>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="text-xs text-muted-foreground">
-                                  <p>
-                                    Seller: {book.seller} • {book.location} • {book.genre}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
+                        </label>
+                      </div>
                     ))}
                   </div>
-                )}
-              </TabsContent>
-            </Tabs>
+                </div>
 
-            {/* Load More */}
-            {sortedBooks.length > 0 && (
-              <div className="text-center mt-8">
-                <Button variant="outline" size="lg">
-                  Load More Books
-                </Button>
+                <div>
+                  <h3 className="font-semibold mb-2">Price Range</h3>
+                  <Slider
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={filters.priceRange}
+                    onValueChange={(val) => handleFilterChange("priceRange", val)}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                    <span>${filters.priceRange[0]}</span>
+                    <span>${filters.priceRange[1]}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Condition</h3>
+                  <div className="grid gap-2">
+                    {allConditions.map((condition) => (
+                      <div key={condition} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`condition-${condition}`}
+                          checked={filters.condition.includes(condition)}
+                          onCheckedChange={() => handleCheckboxFilter("condition", condition)}
+                        />
+                        <label
+                          htmlFor={`condition-${condition}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {condition}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Distance Radius</h3>
+                  <Slider
+                    min={0}
+                    max={100}
+                    step={10}
+                    value={[filters.distance]}
+                    onValueChange={(val) => handleFilterChange("distance", val[0])}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                    <span>0 miles</span>
+                    <span>{filters.distance} miles</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Availability</h3>
+                  <div className="grid gap-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="delivery"
+                        checked={filters.availability.delivery}
+                        onCheckedChange={() => handleAvailabilityFilter("delivery")}
+                      />
+                      <label
+                        htmlFor="delivery"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Delivery Available
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="pickup"
+                        checked={filters.availability.pickup}
+                        onCheckedChange={() => handleAvailabilityFilter("pickup")}
+                      />
+                      <label
+                        htmlFor="pickup"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Local Pickup
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Book Listings */}
+        <div className="lg:col-span-3">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">{filteredBooks.length} Books Found</h2>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2 bg-transparent">
+                  Sort by <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Price: Low to High</DropdownMenuItem>
+                <DropdownMenuItem>Price: High to Low</DropdownMenuItem>
+                <DropdownMenuItem>Newest Arrivals</DropdownMenuItem>
+                <DropdownMenuItem>Top Rated</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+            {filteredBooks.map((book) => (
+              <Card key={book.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-200">
+                <Link href={`/book/${book.id}`}>
+                  <img src={book.image || "/placeholder.svg"} alt={book.title} className="w-full h-48 object-cover" />
+                </Link>
+                <CardContent className="p-4">
+                  <Link href={`/book/${book.id}`}>
+                    <h3 className="font-semibold text-lg mb-1 hover:text-amber-600 transition-colors">{book.title}</h3>
+                  </Link>
+                  <p className="text-sm text-muted-foreground mb-2">{book.author}</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-1 text-sm">
+                      <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                      <span>
+                        {book.rating} ({book.reviews})
+                      </span>
+                    </div>
+                    <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+                      {book.condition}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between mb-4">
+                    {book.price && <span className="text-xl font-bold text-amber-700">${book.price.toFixed(2)}</span>}
+                    {book.rentPrice && (
+                      <span className="text-lg font-semibold text-green-700">${book.rentPrice.toFixed(2)}/week</span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    {book.price && (
+                      <Button
+                        className="flex-1 bg-amber-600 hover:bg-amber-700"
+                        onClick={() => handleAddToCart(book, "buy")}
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" /> Buy
+                      </Button>
+                    )}
+                    {book.rentPrice && (
+                      <Button
+                        variant="outline"
+                        className="flex-1 border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700 bg-transparent"
+                        onClick={() => handleAddToCart(book, "rent", 1)} // Default 1 week rental
+                      >
+                        <Calendar className="w-4 h-4 mr-2" /> Rent
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>

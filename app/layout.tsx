@@ -2,15 +2,17 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { Providers } from "@/components/providers"
+import { Toaster } from "@/components/ui/toaster"
+import { CartProvider } from "@/context/cart-context"
+import { WalletProvider } from "@/context/wallet-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Book Marketplace",
-  description: "Discover, buy, sell, and rent books in your community.",
+  title: "BookHub - Your Online Book Marketplace",
+  description: "Buy, sell, and rent books with ease. Discover new reads and connect with local book lovers.",
     generator: 'v0.dev'
 }
 
@@ -22,13 +24,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </Providers>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <CartProvider>
+            <WalletProvider>
+              <Header />
+              <main>{children}</main>
+              <Toaster />
+            </WalletProvider>
+          </CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

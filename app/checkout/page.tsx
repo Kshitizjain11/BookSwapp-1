@@ -170,7 +170,7 @@ export default function CheckoutPage() {
         <ShoppingCart className="w-24 h-24 text-muted-foreground mb-6" />
         <h2 className="text-2xl font-bold mb-2">Your cart is empty!</h2>
         <p className="text-muted-foreground mb-6">Please add some books to your cart before checking out.</p>
-        <Button asChild>
+        <Button asChild className="bg-amber-600 hover:bg-amber-700">
           <Link href="/marketplace">Go to Marketplace</Link>
         </Button>
       </div>
@@ -265,6 +265,7 @@ export default function CheckoutPage() {
                     placeholder="123 Main St, City, State, Zip"
                     value={deliveryAddress}
                     onChange={(e) => setDeliveryAddress(e.target.value)}
+                    className="border-muted-foreground/20 focus:border-amber-500"
                   />
                 </div>
               </CardContent>
@@ -299,6 +300,7 @@ export default function CheckoutPage() {
                         placeholder="XXXX XXXX XXXX XXXX"
                         value={cardDetails.cardNumber}
                         onChange={(e) => setCardDetails({ ...cardDetails, cardNumber: e.target.value })}
+                        className="border-muted-foreground/20 focus:border-amber-500"
                       />
                     </div>
                     <div className="grid gap-2">
@@ -308,6 +310,7 @@ export default function CheckoutPage() {
                         placeholder="John Doe"
                         value={cardDetails.cardName}
                         onChange={(e) => setCardDetails({ ...cardDetails, cardName: e.target.value })}
+                        className="border-muted-foreground/20 focus:border-amber-500"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -318,6 +321,7 @@ export default function CheckoutPage() {
                           placeholder="MM/YY"
                           value={cardDetails.expiryDate}
                           onChange={(e) => setCardDetails({ ...cardDetails, expiryDate: e.target.value })}
+                          className="border-muted-foreground/20 focus:border-amber-500"
                         />
                       </div>
                       <div className="grid gap-2">
@@ -327,6 +331,7 @@ export default function CheckoutPage() {
                           placeholder="123"
                           value={cardDetails.cvv}
                           onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
+                          className="border-muted-foreground/20 focus:border-amber-500"
                         />
                       </div>
                     </div>
@@ -351,6 +356,7 @@ export default function CheckoutPage() {
                       placeholder="yourname@bank"
                       value={upiId}
                       onChange={(e) => setUpiId(e.target.value)}
+                      className="border-muted-foreground/20 focus:border-amber-500"
                     />
                     <Separator className="my-4" />
                     <div className="flex flex-col items-center gap-2">
@@ -366,7 +372,7 @@ export default function CheckoutPage() {
                       <Button
                         onClick={handlePayment}
                         disabled={isProcessingPayment}
-                        className="w-full mt-2 bg-green-600 hover:bg-green-700"
+                        className="w-full mt-2 bg-amber-600 hover:bg-amber-700"
                       >
                         {isProcessingPayment ? "Processing..." : `Pay ${formatPrice(totalAmount)}`}
                       </Button>
