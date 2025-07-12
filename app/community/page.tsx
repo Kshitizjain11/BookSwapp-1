@@ -1,17 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MessageCircle, Users, Star, Trophy, Plus, ThumbsUp, Eye, Search, TrendingUp, Flag, Heart } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Eye, Flag, Heart, MessageCircle, Plus, Search, Star, TrendingUp, Trophy, Users, ThumbsUp } from "lucide-react"
 
+// -------------------- MOCK DATA --------------------
 const discussions = [
   {
     id: 1,
@@ -140,6 +141,7 @@ const recentReviews = [
     time: "2 days ago",
   },
 ]
+// ---------------------------------------------------
 
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState("discussions")
@@ -149,7 +151,7 @@ export default function CommunityPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Hero */}
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 border-b">
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">Community</h1>
@@ -159,488 +161,584 @@ export default function CommunityPage() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">12,450</div>
-              <div className="text-sm text-muted-foreground">Members</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">8,920</div>
-              <div className="text-sm text-muted-foreground">Discussions</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">25,680</div>
-              <div className="text-sm text-muted-foreground">Reviews</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">156</div>
-              <div className="text-sm text-muted-foreground">Groups</div>
-            </div>
+            <StatBox value="12,450" label="Members" />
+            <StatBox value="8,920" label="Discussions" />
+            <StatBox value="25,680" label="Reviews" />
+            <StatBox value="156" label="Groups" />
           </div>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {/* Tabs */}
           <TabsList className="grid w-full grid-cols-5 mb-8">
-            <TabsTrigger value="discussions" className="flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" />
+            <TabsTrigger value="discussions">
+              <MessageCircle className="w-4 h-4 mr-2" />
               Discussions
             </TabsTrigger>
-            <TabsTrigger value="groups" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
+            <TabsTrigger value="groups">
+              <Users className="w-4 h-4 mr-2" />
               Groups
             </TabsTrigger>
-            <TabsTrigger value="reviews" className="flex items-center gap-2">
-              <Star className="w-4 h-4" />
+            <TabsTrigger value="reviews">
+              <Star className="w-4 h-4 mr-2" />
               Reviews
             </TabsTrigger>
-            <TabsTrigger value="members" className="flex items-center gap-2">
-              <Trophy className="w-4 h-4" />
+            <TabsTrigger value="members">
+              <Trophy className="w-4 h-4 mr-2" />
               Members
             </TabsTrigger>
-            <TabsTrigger value="activity" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
+            <TabsTrigger value="activity">
+              <TrendingUp className="w-4 h-4 mr-2" />
               Activity
             </TabsTrigger>
           </TabsList>
 
-          {/* Discussions Tab */}
+          {/* ---------------- Discussions Tab --------------- */}
           <TabsContent value="discussions">
-            <div className="grid lg:grid-cols-4 gap-8">
-              <div className="lg:col-span-3 space-y-6">
-                {/* Search and Filters */}
-                <div className="flex gap-4 items-center">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input placeholder="Search discussions..." className="pl-10" />
-                  </div>
-                  <Select defaultValue="all">
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="fiction">Fiction</SelectItem>
-                      <SelectItem value="non-fiction">Non-Fiction</SelectItem>
-                      <SelectItem value="fantasy">Fantasy</SelectItem>
-                      <SelectItem value="self-help">Self-Help</SelectItem>
-                      <SelectItem value="events">Events</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="bg-purple-600 hover:bg-purple-700">
-                        <Plus className="w-4 h-4 mr-2" />
-                        New Post
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Create New Discussion</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Title</label>
-                          <Input
-                            placeholder="What would you like to discuss?"
-                            value={newPostTitle}
-                            onChange={(e) => setNewPostTitle(e.target.value)}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Category</label>
-                          <Select value={newPostCategory} onValueChange={setNewPostCategory}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="fiction">Fiction</SelectItem>
-                              <SelectItem value="non-fiction">Non-Fiction</SelectItem>
-                              <SelectItem value="fantasy">Fantasy</SelectItem>
-                              <SelectItem value="self-help">Self-Help</SelectItem>
-                              <SelectItem value="events">Events</SelectItem>
-                              <SelectItem value="general">General</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Content</label>
-                          <Textarea
-                            placeholder="Share your thoughts, ask questions, or start a discussion..."
-                            rows={6}
-                            value={newPostContent}
-                            onChange={(e) => setNewPostContent(e.target.value)}
-                          />
-                        </div>
-                        <div className="flex gap-2 justify-end">
-                          <Button variant="outline">Cancel</Button>
-                          <Button className="bg-purple-600 hover:bg-purple-700">Post Discussion</Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-
-                {/* Discussion Posts */}
-                <div className="space-y-4">
-                  {discussions.map((discussion) => (
-                    <Card key={discussion.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start space-x-4">
-                          <Avatar>
-                            <AvatarImage src={discussion.avatar || "/placeholder.svg"} alt={discussion.author} />
-                            <AvatarFallback>{discussion.author[0]}</AvatarFallback>
-                          </Avatar>
-
-                          <div className="flex-1 space-y-3">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h3 className="font-semibold text-lg hover:text-purple-600 cursor-pointer">
-                                  {discussion.title}
-                                </h3>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <span>by {discussion.author}</span>
-                                  <span>•</span>
-                                  <span>{discussion.time}</span>
-                                  <Badge variant="outline" className="text-xs">
-                                    {discussion.category}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <Button variant="ghost" size="icon">
-                                <Flag className="w-4 h-4" />
-                              </Button>
-                            </div>
-
-                            <p className="text-muted-foreground">{discussion.content}</p>
-
-                            <div className="flex flex-wrap gap-2">
-                              {discussion.tags.map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-xs">
-                                  #{tag}
-                                </Badge>
-                              ))}
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                <div className="flex items-center">
-                                  <ThumbsUp className="w-4 h-4 mr-1" />
-                                  {discussion.likes}
-                                </div>
-                                <div className="flex items-center">
-                                  <MessageCircle className="w-4 h-4 mr-1" />
-                                  {discussion.replies}
-                                </div>
-                                <div className="flex items-center">
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  {discussion.views}
-                                </div>
-                              </div>
-                              <Button variant="outline" size="sm">
-                                Join Discussion
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sidebar */}
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Trending Topics</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">#fantasy2024</span>
-                      <Badge variant="secondary">156 posts</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">#bookclub</span>
-                      <Badge variant="secondary">89 posts</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">#recommendations</span>
-                      <Badge variant="secondary">234 posts</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Community Guidelines</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground space-y-2">
-                    <p>• Be respectful and kind to all members</p>
-                    <p>• No spam or self-promotion</p>
-                    <p>• Use appropriate categories for posts</p>
-                    <p>• No spoilers without warnings</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <DiscussionsTab
+              discussions={discussions}
+              newPostTitle={newPostTitle}
+              newPostContent={newPostContent}
+              newPostCategory={newPostCategory}
+              setNewPostTitle={setNewPostTitle}
+              setNewPostContent={setNewPostContent}
+              setNewPostCategory={setNewPostCategory}
+            />
           </TabsContent>
 
-          {/* Reading Groups Tab */}
+          {/* ---------------- Groups Tab --------------- */}
           <TabsContent value="groups">
-            <div className="grid lg:grid-cols-4 gap-8">
-              <div className="lg:col-span-3">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Reading Groups</h2>
-                  <Button className="bg-purple-600 hover:bg-purple-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Group
-                  </Button>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  {readingGroups.map((group) => (
-                    <Card key={group.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start space-x-4">
-                          <img
-                            src={group.image || "/placeholder.svg"}
-                            alt={group.name}
-                            className="w-16 h-16 rounded-lg object-cover"
-                          />
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-2">{group.name}</h3>
-                            <p className="text-muted-foreground text-sm mb-3">{group.description}</p>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                              <div className="flex items-center">
-                                <Users className="w-4 h-4 mr-1" />
-                                {group.members} members
-                              </div>
-                            </div>
-                            <p className="text-sm text-purple-600 mb-4">{group.recentActivity}</p>
-                            <Button
-                              variant={group.isJoined ? "outline" : "default"}
-                              size="sm"
-                              className={!group.isJoined ? "bg-purple-600 hover:bg-purple-700" : ""}
-                            >
-                              {group.isJoined ? "Joined" : "Join Group"}
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Your Groups</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <img src="/placeholder.svg?height=32&width=32" alt="Group" className="w-8 h-8 rounded" />
-                        <div>
-                          <p className="font-medium text-sm">Mystery & Thriller Club</p>
-                          <p className="text-xs text-muted-foreground">5 new messages</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <GroupsTab readingGroups={readingGroups} />
           </TabsContent>
 
-          {/* Reviews Tab */}
+          {/* ---------------- Reviews Tab --------------- */}
           <TabsContent value="reviews">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Recent Reviews</h2>
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Write Review
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                {recentReviews.map((review) => (
-                  <Card key={review.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        <Avatar>
-                          <AvatarImage src={review.reviewerAvatar || "/placeholder.svg"} alt={review.reviewer} />
-                          <AvatarFallback>{review.reviewer[0]}</AvatarFallback>
-                        </Avatar>
-
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <h3 className="font-semibold">{review.bookTitle}</h3>
-                              <p className="text-sm text-muted-foreground">by {review.author}</p>
-                            </div>
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-
-                          <p className="text-muted-foreground mb-3">{review.review}</p>
-
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <div className="flex items-center space-x-4">
-                              <span>by {review.reviewer}</span>
-                              <span>•</span>
-                              <span>{review.time}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Button variant="ghost" size="sm">
-                                <Heart className="w-4 h-4 mr-1" />
-                                {review.likes}
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <MessageCircle className="w-4 h-4 mr-1" />
-                                Reply
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            <ReviewsTab recentReviews={recentReviews} />
           </TabsContent>
 
-          {/* Members Tab */}
+          {/* ---------------- Members Tab --------------- */}
           <TabsContent value="members">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Top Community Members</h2>
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {topMembers.map((member, index) => (
-                  <Card key={member.name} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="relative mb-4">
-                        <Avatar className="w-20 h-20 mx-auto">
-                          <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
-                          <AvatarFallback className="text-lg">
-                            {member.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <Badge className="absolute -top-2 -right-2 bg-amber-500">#{index + 1}</Badge>
-                      </div>
-
-                      <h3 className="font-semibold text-lg mb-1">{member.name}</h3>
-                      <Badge className="bg-purple-100 text-purple-800 mb-3">{member.badge}</Badge>
-
-                      <div className="space-y-2 text-sm text-muted-foreground">
-                        <div className="flex justify-between">
-                          <span>Points:</span>
-                          <span className="font-medium text-purple-600">{member.points}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Books:</span>
-                          <span>{member.books}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Reviews:</span>
-                          <span>{member.reviews}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Rating:</span>
-                          <div className="flex items-center">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />
-                            {member.rating}
-                          </div>
-                        </div>
-                      </div>
-
-                      <Button variant="outline" size="sm" className="mt-4 w-full bg-transparent">
-                        View Profile
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            <MembersTab topMembers={topMembers} />
           </TabsContent>
 
-          {/* Activity Tab */}
+          {/* ---------------- Activity Tab --------------- */}
           <TabsContent value="activity">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Community Activity</h2>
-
-              <div className="space-y-4">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-                        <AvatarFallback>SJ</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm">
-                          <span className="font-medium">Sarah Johnson</span> posted a new review for{" "}
-                          <span className="font-medium">"The Midnight Library"</span>
-                        </p>
-                        <p className="text-xs text-muted-foreground">2 minutes ago</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-                        <AvatarFallback>MC</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm">
-                          <span className="font-medium">Mike Chen</span> joined the{" "}
-                          <span className="font-medium">Sci-Fi Enthusiasts</span> group
-                        </p>
-                        <p className="text-xs text-muted-foreground">15 minutes ago</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-                        <AvatarFallback>ED</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm">
-                          <span className="font-medium">Emma Davis</span> started a new discussion:{" "}
-                          <span className="font-medium">"Best Romance Novels of 2024"</span>
-                        </p>
-                        <p className="text-xs text-muted-foreground">1 hour ago</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <ActivityTab />
           </TabsContent>
         </Tabs>
+      </div>
+    </div>
+  )
+}
+
+/* ---------------- Helper Components ---------------- */
+
+function StatBox({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-2xl font-bold text-purple-600">{value}</div>
+      <div className="text-sm text-muted-foreground">{label}</div>
+    </div>
+  )
+}
+
+/* ---------------- Discussions ---------------- */
+
+interface DiscussionsTabProps {
+  discussions: typeof discussions
+  newPostTitle: string
+  newPostContent: string
+  newPostCategory: string
+  setNewPostTitle: (v: string) => void
+  setNewPostContent: (v: string) => void
+  setNewPostCategory: (v: string) => void
+}
+
+function DiscussionsTab({
+  discussions,
+  newPostTitle,
+  newPostContent,
+  newPostCategory,
+  setNewPostTitle,
+  setNewPostContent,
+  setNewPostCategory,
+}: DiscussionsTabProps) {
+  return (
+    <div className="grid lg:grid-cols-4 gap-8">
+      {/* Posts */}
+      <div className="lg:col-span-3 space-y-6">
+        <SearchAndFilters />
+
+        {/* Discussion Posts */}
+        <div className="space-y-4">
+          {discussions.map((d) => (
+            <DiscussionCard key={d.id} discussion={d} />
+          ))}
+        </div>
+      </div>
+
+      {/* Sidebar */}
+      <div className="space-y-6">
+        <TrendingTopicsCard />
+        <GuidelinesCard />
+      </div>
+    </div>
+  )
+}
+
+function SearchAndFilters() {
+  return (
+    <div className="flex gap-4 items-center">
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input placeholder="Search discussions..." className="pl-10" />
+      </div>
+      <Select defaultValue="all">
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="Category" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Categories</SelectItem>
+          <SelectItem value="fiction">Fiction</SelectItem>
+          <SelectItem value="non-fiction">Non-Fiction</SelectItem>
+          <SelectItem value="fantasy">Fantasy</SelectItem>
+          <SelectItem value="self-help">Self-Help</SelectItem>
+          <SelectItem value="events">Events</SelectItem>
+        </SelectContent>
+      </Select>
+      {/* New Post Button + Dialog */}
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button className="bg-purple-600 hover:bg-purple-700">
+            <Plus className="w-4 h-4 mr-2" />
+            New Post
+          </Button>
+        </DialogTrigger>
+        <NewPostDialog />
+      </Dialog>
+    </div>
+  )
+}
+
+function NewPostDialog() {
+  const [title, setTitle] = useState("")
+  const [category, setCategory] = useState("")
+  const [content, setContent] = useState("")
+
+  return (
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Create New Discussion</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-4">
+        <div>
+          <label className="text-sm font-medium mb-2 block">Title</label>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="What would you like to discuss?"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-2 block">Category</label>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fiction">Fiction</SelectItem>
+              <SelectItem value="non-fiction">Non-Fiction</SelectItem>
+              <SelectItem value="fantasy">Fantasy</SelectItem>
+              <SelectItem value="self-help">Self-Help</SelectItem>
+              <SelectItem value="events">Events</SelectItem>
+              <SelectItem value="general">General</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-2 block">Content</label>
+          <Textarea
+            rows={6}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Share your thoughts..."
+          />
+        </div>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline">Cancel</Button>
+          <Button className="bg-purple-600 hover:bg-purple-700">Post Discussion</Button>
+        </div>
+      </div>
+    </DialogContent>
+  )
+}
+
+function DiscussionCard({ discussion }: { discussion: (typeof discussions)[number] }) {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <div className="flex items-start space-x-4">
+          <Avatar>
+            <AvatarImage src={discussion.avatar || "/placeholder.svg"} alt={discussion.author} />
+            <AvatarFallback>{discussion.author[0]}</AvatarFallback>
+          </Avatar>
+
+          <div className="flex-1 space-y-3">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-semibold text-lg hover:text-purple-600 cursor-pointer">{discussion.title}</h3>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>by {discussion.author}</span>
+                  <span>•</span>
+                  <span>{discussion.time}</span>
+                  <Badge variant="outline" className="text-xs">
+                    {discussion.category}
+                  </Badge>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon">
+                <Flag className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <p className="text-muted-foreground">{discussion.content}</p>
+
+            <div className="flex flex-wrap gap-2">
+              {discussion.tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <IconText icon={ThumbsUp} value={discussion.likes} />
+                <IconText icon={MessageCircle} value={discussion.replies} />
+                <IconText icon={Eye} value={discussion.views} />
+              </div>
+              <Button variant="outline" size="sm">
+                Join Discussion
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function IconText({ icon: Icon, value }: { icon: typeof Eye; value: number }) {
+  return (
+    <div className="flex items-center">
+      <Icon className="w-4 h-4 mr-1" />
+      {value}
+    </div>
+  )
+}
+
+/* ---------------- Sidebar Cards ---------------- */
+
+function TrendingTopicsCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Trending Topics</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {[
+          { topic: "#fantasy2024", count: "156 posts" },
+          { topic: "#bookclub", count: "89 posts" },
+          { topic: "#recommendations", count: "234 posts" },
+        ].map((t) => (
+          <div key={t.topic} className="flex items-center justify-between">
+            <span className="text-sm">{t.topic}</span>
+            <Badge variant="secondary">{t.count}</Badge>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  )
+}
+
+function GuidelinesCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Community Guidelines</CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm text-muted-foreground space-y-2">
+        <p>• Be respectful and kind to all members</p>
+        <p>• No spam or self-promotion</p>
+        <p>• Use appropriate categories for posts</p>
+        <p>• No spoilers without warnings</p>
+      </CardContent>
+    </Card>
+  )
+}
+
+/* ---------------- Groups Tab ---------------- */
+
+function GroupsTab({ readingGroups }: { readingGroups: typeof readingGroups }) {
+  return (
+    <div className="grid lg:grid-cols-4 gap-8">
+      {/* Groups */}
+      <div className="lg:col-span-3">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Reading Groups</h2>
+          <Button className="bg-purple-600 hover:bg-purple-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Group
+          </Button>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {readingGroups.map((g) => (
+            <GroupCard key={g.id} group={g} />
+          ))}
+        </div>
+      </div>
+
+      {/* Your Groups Sidebar */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Your Groups</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <img src="/placeholder.svg?height=32&width=32" alt="Group" className="w-8 h-8 rounded" />
+                <div>
+                  <p className="font-medium text-sm">Mystery & Thriller Club</p>
+                  <p className="text-xs text-muted-foreground">5 new messages</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+function GroupCard({ group }: { group: (typeof readingGroups)[number] }) {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <div className="flex items-start space-x-4">
+          <img src={group.image || "/placeholder.svg"} alt={group.name} className="w-16 h-16 rounded-lg object-cover" />
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg mb-2">{group.name}</h3>
+            <p className="text-muted-foreground text-sm mb-3">{group.description}</p>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+              <IconText icon={Users} value={group.members} />
+            </div>
+            <p className="text-sm text-purple-600 mb-4">{group.recentActivity}</p>
+            <Button
+              variant={group.isJoined ? "outline" : "default"}
+              size="sm"
+              className={!group.isJoined ? "bg-purple-600 hover:bg-purple-700" : ""}
+            >
+              {group.isJoined ? "Joined" : "Join Group"}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/* ---------------- Reviews Tab ---------------- */
+
+function ReviewsTab({ recentReviews }: { recentReviews: typeof recentReviews }) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Recent Reviews</h2>
+        <Button className="bg-purple-600 hover:bg-purple-700">
+          <Plus className="w-4 h-4 mr-2" />
+          Write Review
+        </Button>
+      </div>
+
+      <div className="space-y-4">
+        {recentReviews.map((r) => (
+          <ReviewCard key={r.id} review={r} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ReviewCard({ review }: { review: (typeof recentReviews)[number] }) {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <div className="flex items-start space-x-4">
+          <Avatar>
+            <AvatarImage src={review.reviewerAvatar || "/placeholder.svg"} alt={review.reviewer} />
+            <AvatarFallback>{review.reviewer[0]}</AvatarFallback>
+          </Avatar>
+
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="font-semibold">{review.bookTitle}</h3>
+                <p className="text-sm text-muted-foreground">by {review.author}</p>
+              </div>
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <p className="text-muted-foreground mb-3">{review.review}</p>
+
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center space-x-4">
+                <span>by {review.reviewer}</span>
+                <span>•</span>
+                <span>{review.time}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm">
+                  <Heart className="w-4 h-4 mr-1" />
+                  {review.likes}
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <MessageCircle className="w-4 h-4 mr-1" />
+                  Reply
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/* ---------------- Members Tab ---------------- */
+
+function MembersTab({ topMembers }: { topMembers: typeof topMembers }) {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Top Community Members</h2>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {topMembers.map((m, idx) => (
+          <MemberCard key={m.name} member={m} rank={idx + 1} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function MemberCard({ member, rank }: { member: (typeof topMembers)[number]; rank: number }) {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-6 text-center">
+        <div className="relative mb-4">
+          <Avatar className="w-20 h-20 mx-auto">
+            <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
+            <AvatarFallback className="text-lg">
+              {member.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
+          <Badge className="absolute -top-2 -right-2 bg-amber-500">#{rank}</Badge>
+        </div>
+
+        <h3 className="font-semibold text-lg mb-1">{member.name}</h3>
+        <Badge className="bg-purple-100 text-purple-800 mb-3">{member.badge}</Badge>
+
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Points:</span>
+            <span className="font-medium text-purple-600">{member.points}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Books:</span>
+            <span>{member.books}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Reviews:</span>
+            <span>{member.reviews}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Rating:</span>
+            <div className="flex items-center">
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />
+              {member.rating}
+            </div>
+          </div>
+        </div>
+
+        <Button variant="outline" size="sm" className="mt-4 w-full bg-transparent">
+          View Profile
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
+
+/* ---------------- Activity Tab ---------------- */
+
+function ActivityTab() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Community Activity</h2>
+
+      <div className="space-y-4">
+        {[
+          {
+            name: "Sarah Johnson",
+            avatar: "SJ",
+            action: 'posted a new review for "The Midnight Library"',
+            time: "2 minutes ago",
+          },
+          {
+            name: "Mike Chen",
+            avatar: "MC",
+            action: "joined the Sci-Fi Enthusiasts group",
+            time: "15 minutes ago",
+          },
+          {
+            name: "Emma Davis",
+            avatar: "ED",
+            action: 'started a new discussion: "Best Romance Novels of 2024"',
+            time: "1 hour ago",
+          },
+        ].map((a) => (
+          <Card key={a.time}>
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src="/placeholder.svg?height=32&width=32" alt={a.name} />
+                  <AvatarFallback>{a.avatar}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="text-sm">
+                    <span className="font-medium">{a.name}</span> {a.action}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{a.time}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )
