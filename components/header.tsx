@@ -76,8 +76,10 @@ export function Header() {
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="icon" className="relative">
-                  <MapPin className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="relative" asChild>
+                  <Link href="/map">
+                    <MapPin className="h-5 w-5" />
+                  </Link>
                 </Button>
 
                 <Button variant="ghost" size="icon" className="relative">
