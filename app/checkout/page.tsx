@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +14,7 @@ import { useWallet } from "@/context/wallet-context"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/use-toast"
 import type { Order, Rental } from "@/lib/types"
-import { ShoppingCart } from "lucide-react" // Declared ShoppingCart variable
+import { ShoppingCart } from "lucide-react"
 
 export default function CheckoutPage() {
   const { cartItems, getCartTotal, clearCart } = useCart()
@@ -30,6 +30,7 @@ export default function CheckoutPage() {
   })
   const [upiId, setUpiId] = useState("")
   const [deliveryAddress, setDeliveryAddress] = useState("")
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 
   const subtotal = getCartTotal()
   const taxRate = 0.08 // 8% tax
@@ -39,7 +40,16 @@ export default function CheckoutPage() {
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`
 
-  const handlePayment = () => {
+  // Generate a simulated UPI QR code URL
+  const upiQrCodeUrl = useMemo(() => {
+    const simulatedUpiId = "bookmarketplace@bank" // A placeholder UPI ID
+    const encodedAmount = encodeURIComponent(totalAmount.toFixed(2))
+    const encodedName = encodeURIComponent("Book Marketplace")
+    const upiLink = `upi://pay?pa=${simulatedUpiId}&pn=${encodedName}&am=${encodedAmount}&cu=INR`
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`
+  }, [totalAmount])
+
+  const handlePayment = async () => {
     if (cartItems.length === 0) {
       toast({
         title: "Cart Empty",
@@ -61,10 +71,11 @@ export default function CheckoutPage() {
       return
     }
 
-    if (paymentMethod === "upi" && !upiId) {
+    if (paymentMethod === "upi" && !upiId && !isProcessingPayment) {
+      // Only require UPI ID if not using QR simulation
       toast({
         title: "Missing UPI ID",
-        description: "Please enter your UPI ID.",
+        description: "Please enter your UPI ID or use the QR code.",
         variant: "destructive",
       })
       return
@@ -78,6 +89,9 @@ export default function CheckoutPage() {
       })
       return
     }
+
+    setIsProcessingPayment(true)
+    await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulate payment processing delay
 
     let paymentSuccessful = false
     if (paymentMethod === "wallet") {
@@ -147,6 +161,7 @@ export default function CheckoutPage() {
     } else {
       // Error toast already handled by withdraw function for wallet
     }
+    setIsProcessingPayment(false)
   }
 
   if (cartItems.length === 0) {
@@ -330,13 +345,32 @@ export default function CheckoutPage() {
                 </Label>
                 {paymentMethod === "upi" && (
                   <div className="grid gap-2 p-4 border rounded-md">
-                    <Label htmlFor="upiId">UPI ID</Label>
+                    <Label htmlFor="upiId">UPI ID (Optional)</Label>
                     <Input
                       id="upiId"
                       placeholder="yourname@bank"
                       value={upiId}
                       onChange={(e) => setUpiId(e.target.value)}
                     />
+                    <Separator className="my-4" />
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-sm text-muted-foreground">Scan QR Code to Pay</p>
+                      <img
+                        src={upiQrCodeUrl || "/placeholder.svg"}
+                        alt="UPI QR Code"
+                        className="w-36 h-36 border rounded-md p-2"
+                      />
+                      <p className="text-xs text-center text-muted-foreground">
+                        Open your UPI app and scan this QR code to complete the payment.
+                      </p>
+                      <Button
+                        onClick={handlePayment}
+                        disabled={isProcessingPayment}
+                        className="w-full mt-2 bg-green-600 hover:bg-green-700"
+                      >
+                        {isProcessingPayment ? "Processing..." : `Pay ${formatPrice(totalAmount)}`}
+                      </Button>
+                    </div>
                   </div>
                 )}
 
@@ -351,9 +385,15 @@ export default function CheckoutPage() {
                   </div>
                 </Label>
               </RadioGroup>
-              <Button onClick={handlePayment} className="w-full mt-6 bg-amber-600 hover:bg-amber-700 text-lg py-6">
-                Pay {formatPrice(totalAmount)}
-              </Button>
+              {paymentMethod !== "upi" && ( // Only show the main pay button if not UPI (UPI has its own simulate button)
+                <Button
+                  onClick={handlePayment}
+                  disabled={isProcessingPayment}
+                  className="w-full mt-6 bg-amber-600 hover:bg-amber-700 text-lg py-6"
+                >
+                  {isProcessingPayment ? "Processing..." : `Pay ${formatPrice(totalAmount)}`}
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
