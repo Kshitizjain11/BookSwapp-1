@@ -10,6 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Search, Grid, List, MapPin, Star, Heart, ShoppingCart, Calendar, SlidersHorizontal } from "lucide-react"
+import Link from "next/link"
+import { useCart } from "@/context/cart-context"
+import type { CartItem } from "@/lib/types"
 
 const books = [
   {
@@ -142,6 +145,8 @@ export default function MarketplacePage() {
   const [showNearbyOnly, setShowNearbyOnly] = useState(false)
   const [wishlistedBooks, setWishlistedBooks] = useState<number[]>([])
 
+  const { addToCart } = useCart()
+
   // Get unique values for filters
   const categories = [...new Set(books.map((book) => book.category))]
   const genres = [...new Set(books.map((book) => book.genre))]
@@ -225,6 +230,16 @@ export default function MarketplacePage() {
 
   const toggleWishlist = (bookId: number) => {
     setWishlistedBooks((prev) => (prev.includes(bookId) ? prev.filter((id) => id !== bookId) : [...prev, bookId]))
+  }
+
+  const handleAddToCart = (book: (typeof books)[0], type: "buy" | "rent", rentalDuration?: number) => {
+    const cartItem: CartItem = {
+      ...book,
+      quantity: 1,
+      type,
+      rentalDuration,
+    }
+    addToCart(cartItem)
   }
 
   const clearFilters = () => {
@@ -504,8 +519,10 @@ export default function MarketplacePage() {
                                       className={`w-4 h-4 ${wishlistedBooks.includes(book.id) ? "fill-current" : ""}`}
                                     />
                                   </Button>
-                                  <Button size="icon" variant="secondary">
-                                    <MapPin className="w-4 h-4" />
+                                  <Button size="icon" variant="secondary" asChild>
+                                    <Link href="/map">
+                                      <MapPin className="w-4 h-4" />
+                                    </Link>
                                   </Button>
                                 </div>
                               </div>
@@ -545,12 +562,21 @@ export default function MarketplacePage() {
                                 </div>
 
                                 <div className="flex gap-2 pt-2">
-                                  <Button size="sm" className="flex-1 bg-amber-600 hover:bg-amber-700">
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 bg-amber-600 hover:bg-amber-700"
+                                    onClick={() => handleAddToCart(book, "buy")}
+                                  >
                                     <ShoppingCart className="w-4 h-4 mr-1" />
                                     Buy
                                   </Button>
                                   {book.isRentable && (
-                                    <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="flex-1 bg-transparent"
+                                      onClick={() => handleAddToCart(book, "rent", 7)}
+                                    >
                                       <Calendar className="w-4 h-4 mr-1" />
                                       Rent
                                     </Button>
@@ -582,8 +608,10 @@ export default function MarketplacePage() {
                                         className={`w-4 h-4 ${wishlistedBooks.includes(book.id) ? "fill-current" : ""}`}
                                       />
                                     </Button>
-                                    <Button size="icon" variant="ghost">
-                                      <MapPin className="w-4 h-4" />
+                                    <Button size="icon" variant="ghost" asChild>
+                                      <Link href="/map">
+                                        <MapPin className="w-4 h-4" />
+                                      </Link>
                                     </Button>
                                   </div>
                                 </div>
@@ -612,12 +640,20 @@ export default function MarketplacePage() {
                                     )}
                                   </div>
                                   <div className="flex gap-2">
-                                    <Button size="sm" className="bg-amber-600 hover:bg-amber-700">
+                                    <Button
+                                      size="sm"
+                                      className="bg-amber-600 hover:bg-amber-700"
+                                      onClick={() => handleAddToCart(book, "buy")}
+                                    >
                                       <ShoppingCart className="w-4 h-4 mr-1" />
                                       Buy
                                     </Button>
                                     {book.isRentable && (
-                                      <Button size="sm" variant="outline">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleAddToCart(book, "rent", 7)}
+                                      >
                                         <Calendar className="w-4 h-4 mr-1" />
                                         Rent
                                       </Button>

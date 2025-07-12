@@ -4,34 +4,34 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { Toaster } from "@/components/ui/toaster"
+import { CartProvider } from "@/context/cart-context"
+import { WalletProvider } from "@/context/wallet-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "BookHub - Buy, Sell & Rent Books",
-  description:
-    "The ultimate marketplace for book lovers. Buy, sell, and rent books with ease. Connect with local book enthusiasts and discover your next great read.",
-  keywords: "books, marketplace, buy books, sell books, rent books, book community",
+  title: "BookHub - Your Local Book Marketplace",
+  description: "Discover, buy, sell, and rent books in your community.",
     generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <WalletProvider>
+            <CartProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Toaster />
+            </CartProvider>
+          </WalletProvider>
         </ThemeProvider>
       </body>
     </html>

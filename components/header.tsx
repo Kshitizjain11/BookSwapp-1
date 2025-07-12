@@ -22,16 +22,23 @@ import {
   Scan,
   Calendar,
   Users,
+  DollarSign,
+  Package,
+  BookText,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { WishlistModal } from "./wishlist-modal"
 import { NotificationsModal } from "./notifications-modal"
+import { useCart } from "@/context/cart-context"
 
 export function Header() {
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { getCartItemCount } = useCart()
+
+  const cartItemCount = getCartItemCount()
 
   return (
     <>
@@ -98,8 +105,14 @@ export function Header() {
                 </Button>
 
                 <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-green-500">2</Badge>
+                  <Link href="/cart" className="flex items-center justify-center h-full w-full">
+                    <ShoppingCart className="h-5 w-5" />
+                  </Link>
+                  {cartItemCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-green-500">
+                      {cartItemCount}
+                    </Badge>
+                  )}
                 </Button>
 
                 <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
@@ -121,10 +134,22 @@ export function Header() {
                       <Link href="/my-books">My Books</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/orders">Orders</Link>
+                      <Link href="/orders" className="flex items-center">
+                        <Package className="mr-2 h-4 w-4" />
+                        Orders
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/rentals">My Rentals</Link>
+                      <Link href="/rentals" className="flex items-center">
+                        <BookText className="mr-2 h-4 w-4" />
+                        My Rentals
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/wallet" className="flex items-center">
+                        <DollarSign className="mr-2 h-4 w-4" />
+                        Wallet
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/sell">Sell a Book</Link>
@@ -144,8 +169,14 @@ export function Header() {
               </Button>
 
               <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 rounded-full p-0 text-xs bg-green-500">2</Badge>
+                <Link href="/cart" className="flex items-center justify-center h-full w-full">
+                  <ShoppingCart className="h-5 w-5" />
+                </Link>
+                {cartItemCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-green-500">
+                    {cartItemCount}
+                  </Badge>
+                )}
               </Button>
 
               <Sheet>
@@ -201,6 +232,18 @@ export function Header() {
                       <Link href="/profile" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
                         <User className="w-5 h-5 mr-3" />
                         My Profile
+                      </Link>
+                      <Link href="/orders" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                        <Package className="w-5 h-5 mr-3" />
+                        Orders
+                      </Link>
+                      <Link href="/rentals" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                        <BookText className="w-5 h-5 mr-3" />
+                        My Rentals
+                      </Link>
+                      <Link href="/wallet" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                        <DollarSign className="w-5 h-5 mr-3" />
+                        Wallet
                       </Link>
                     </nav>
                   </div>

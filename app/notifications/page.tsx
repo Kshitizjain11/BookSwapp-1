@@ -17,6 +17,9 @@ import {
   Check,
   X,
   Settings,
+  Package,
+  BookText,
+  DollarSign,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -29,7 +32,7 @@ const notifications = [
     message: "The Midnight Library is now 20% off - was $18.99, now $15.99",
     bookTitle: "The Midnight Library",
     bookId: 1,
-    timestamp: "2024-01-15T10:30:00Z",
+    timestamp: "2024-07-15T10:30:00Z",
     isRead: false,
     icon: Heart,
     color: "text-red-500",
@@ -37,60 +40,96 @@ const notifications = [
   },
   {
     id: 2,
-    type: "wishlist_available",
-    title: "Book Now Available!",
-    message: "Dune by Frank Herbert is back in stock and ready to purchase",
-    bookTitle: "Dune",
-    bookId: 3,
-    timestamp: "2024-01-14T15:45:00Z",
+    type: "order_confirmation",
+    title: "Order Confirmed!",
+    message: "Your order #ORD-20240712-001 for 'Atomic Habits' has been placed.",
+    orderId: "ORD-20240712-001",
+    timestamp: "2024-07-12T14:00:00Z",
     isRead: false,
-    icon: BookOpen,
-    color: "text-green-500",
+    icon: ShoppingCart,
+    color: "text-green-600",
     bgColor: "bg-green-50",
   },
   {
     id: 3,
-    type: "rental_reminder",
-    title: "Rental Due Soon",
-    message: "Your rental of 'Atomic Habits' is due in 2 days",
-    bookTitle: "Atomic Habits",
-    bookId: 2,
-    timestamp: "2024-01-14T09:00:00Z",
-    isRead: true,
+    type: "rental_confirmation",
+    title: "Rental Confirmed!",
+    message: "You've successfully rented 'Dune' for 7 days. Due on 2024-07-19.",
+    rentalId: "RENT-20240712-001",
+    timestamp: "2024-07-12T14:05:00Z",
+    isRead: false,
     icon: Calendar,
     color: "text-blue-500",
     bgColor: "bg-blue-50",
   },
   {
     id: 4,
+    type: "seller_sale",
+    title: "Book Sold!",
+    message: "Your book 'The Psychology of Money' has been sold.",
+    bookId: 4,
+    timestamp: "2024-07-12T14:10:00Z",
+    isRead: false,
+    icon: DollarSign,
+    color: "text-purple-500",
+    bgColor: "bg-purple-50",
+  },
+  {
+    id: 5,
+    type: "wishlist_available",
+    title: "Book Now Available!",
+    message: "Dune by Frank Herbert is back in stock and ready to purchase",
+    bookTitle: "Dune",
+    bookId: 3,
+    timestamp: "2024-07-14T15:45:00Z",
+    isRead: false,
+    icon: BookOpen,
+    color: "text-green-500",
+    bgColor: "bg-green-50",
+  },
+  {
+    id: 6,
+    type: "rental_reminder",
+    title: "Rental Due Soon",
+    message: "Your rental of 'Atomic Habits' is due in 2 days",
+    bookTitle: "Atomic Habits",
+    bookId: 2,
+    timestamp: "2024-07-14T09:00:00Z",
+    isRead: true,
+    icon: Calendar,
+    color: "text-blue-500",
+    bgColor: "bg-blue-50",
+  },
+  {
+    id: 7,
     type: "review_request",
     title: "Review Request",
     message: "How was your experience with 'The Psychology of Money'? Leave a review!",
     bookTitle: "The Psychology of Money",
     bookId: 4,
-    timestamp: "2024-01-13T14:20:00Z",
+    timestamp: "2024-07-13T14:20:00Z",
     isRead: true,
     icon: Star,
     color: "text-yellow-500",
     bgColor: "bg-yellow-50",
   },
   {
-    id: 5,
+    id: 8,
     type: "community",
     title: "New Discussion",
     message: "BookLover123 started a discussion about 'Best Fantasy Books of 2024'",
-    timestamp: "2024-01-13T11:15:00Z",
+    timestamp: "2024-07-13T11:15:00Z",
     isRead: true,
     icon: MessageCircle,
     color: "text-purple-500",
     bgColor: "bg-purple-50",
   },
   {
-    id: 6,
+    id: 9,
     type: "order_update",
     title: "Order Shipped",
     message: "Your order #12345 has been shipped and will arrive in 2-3 days",
-    timestamp: "2024-01-12T16:30:00Z",
+    timestamp: "2024-07-12T16:30:00Z",
     isRead: true,
     icon: ShoppingCart,
     color: "text-amber-500",
@@ -123,7 +162,14 @@ export default function NotificationsPage() {
           (notif) => notif.type === "wishlist_discount" || notif.type === "wishlist_available",
         )
       case "orders":
-        return notificationList.filter((notif) => notif.type === "order_update" || notif.type === "rental_reminder")
+        return notificationList.filter(
+          (notif) =>
+            notif.type === "order_update" || notif.type === "order_confirmation" || notif.type === "seller_sale",
+        )
+      case "rentals":
+        return notificationList.filter(
+          (notif) => notif.type === "rental_reminder" || notif.type === "rental_confirmation",
+        )
       case "community":
         return notificationList.filter((notif) => notif.type === "community" || notif.type === "review_request")
       default:
@@ -172,7 +218,7 @@ export default function NotificationsPage() {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-6 mb-6">
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Bell className="w-4 h-4" />
               All
@@ -193,8 +239,12 @@ export default function NotificationsPage() {
               Wishlist
             </TabsTrigger>
             <TabsTrigger value="orders" className="flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4" />
+              <Package className="w-4 h-4" />
               Orders
+            </TabsTrigger>
+            <TabsTrigger value="rentals" className="flex items-center gap-2">
+              <BookText className="w-4 h-4" />
+              Rentals
             </TabsTrigger>
             <TabsTrigger value="community" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -292,6 +342,26 @@ export default function NotificationsPage() {
                                 </Button>
                               </div>
                             )}
+
+                            {(notification.type === "order_confirmation" ||
+                              notification.type === "order_update" ||
+                              notification.type === "seller_sale") &&
+                              notification.orderId && (
+                                <div className="mt-3">
+                                  <Button size="sm" asChild>
+                                    <Link href={`/my-orders?orderId=${notification.orderId}`}>View Order</Link>
+                                  </Button>
+                                </div>
+                              )}
+
+                            {(notification.type === "rental_confirmation" || notification.type === "rental_reminder") &&
+                              notification.rentalId && (
+                                <div className="mt-3">
+                                  <Button size="sm" asChild>
+                                    <Link href={`/my-rentals?rentalId=${notification.rentalId}`}>View Rental</Link>
+                                  </Button>
+                                </div>
+                              )}
                           </div>
                         </div>
                       </CardContent>
