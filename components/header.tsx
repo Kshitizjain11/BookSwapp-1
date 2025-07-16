@@ -25,6 +25,7 @@ import {
   DollarSign,
   Package,
   BookText,
+  Settings as SettingsIcon,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { WishlistModal } from "./wishlist-modal"
@@ -154,7 +155,12 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link href="/sell">Sell a Book</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>Settings</DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings" className="flex items-center">
+                        <SettingsIcon className="mr-2 h-4 w-4" />
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem>Sign Out</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -191,6 +197,10 @@ export function Header() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input placeholder="Search books..." className="pl-10" />
                     </div>
+                    <Link href="/settings" className="text-lg font-medium py-2 hover:text-amber-600 flex items-center">
+                      <SettingsIcon className="w-5 h-5 mr-3" />
+                      Settings
+                    </Link>
 
                     <nav className="flex flex-col space-y-2">
                       <Link
