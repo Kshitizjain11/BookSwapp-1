@@ -158,10 +158,15 @@ export default function SettingsPage() {
     if (file) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        setUser({ ...user, avatar: e.target?.result as string })
-        // Also update the profile page data
+        const newAvatar = e.target?.result as string
+        setUser({ ...user, avatar: newAvatar })
+        
+        // Update the profile page data with the same key structure
         const profileData = JSON.parse(localStorage.getItem("userProfile") || "{}")
-        const updatedProfileData = { ...profileData, avatar: e.target?.result as string }
+        const updatedProfileData = { 
+          ...profileData, 
+          profileImage: newAvatar  // Use profileImage key to match profile page
+        }
         localStorage.setItem("userProfile", JSON.stringify(updatedProfileData))
         
         toast({

@@ -50,8 +50,22 @@ export default function ProfilePage() {
   useEffect(() => {
     const savedProfile = localStorage.getItem('userProfile');
     if (savedProfile) {
-      setUserProfile(JSON.parse(savedProfile));
+      const parsedProfile = JSON.parse(savedProfile);
+      setUserProfile(parsedProfile);
     }
+    
+    // Set up listener for localStorage changes to sync across tabs/pages
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'userProfile' && e.newValue) {
+        setUserProfile(JSON.parse(e.newValue));
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const recentActivity = [
