@@ -120,6 +120,16 @@ export default function SettingsPage() {
   })
 
   const handleProfileUpdate = () => {
+    // Update profile page data
+    const profileData = JSON.parse(localStorage.getItem("userProfile") || "{}")
+    const updatedProfileData = { 
+      ...profileData, 
+      name: user.name,
+      email: user.email,
+      phone: user.phone
+    }
+    localStorage.setItem("userProfile", JSON.stringify(updatedProfileData))
+    
     toast({
       title: "Profile Updated",
       description: "Your profile information has been saved successfully.",
@@ -149,6 +159,11 @@ export default function SettingsPage() {
       const reader = new FileReader()
       reader.onload = (e) => {
         setUser({ ...user, avatar: e.target?.result as string })
+        // Also update the profile page data
+        const profileData = JSON.parse(localStorage.getItem("userProfile") || "{}")
+        const updatedProfileData = { ...profileData, avatar: e.target?.result as string }
+        localStorage.setItem("userProfile", JSON.stringify(updatedProfileData))
+        
         toast({
           title: "Profile Picture Updated",
           description: "Your profile picture has been changed successfully.",
