@@ -165,7 +165,7 @@ export default function ProfilePage() {
             <Avatar className="w-24 h-24 border-4 border-white">
               <AvatarImage src={userProfile.profileImage} alt={userProfile.name} />
               <AvatarFallback className="text-2xl bg-amber-700">
-                {userProfile.name.split(' ').map(n => n[0]).join('')}
+                {(userProfile.name ?? '').split(' ').map(n => n[0]).join('') || 'U'}
               </AvatarFallback>
             </Avatar>
             
