@@ -22,11 +22,14 @@ export type CartItem = {
   author: string
   price: number // Price if buying
   rentPrice?: number // Price per week if renting
+  rentPriceType?: 'day' | 'week' // Whether rent price is per day or per week
   image: string
   condition: string
   quantity: number
-  type: "buy" | "rent"
-  rentalDuration?: number // in weeks, only for rent type
+  type: 'buy' | 'rent'
+  rentalDuration?: number // in days, for rent type
+  rentalStartDate?: string // ISO string
+  rentalEndDate?: string // ISO string
   seller: string
 }
 

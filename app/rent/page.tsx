@@ -8,24 +8,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { RentalConfirmationModal } from "@/components/rental-confirmation-modal"
+import { useCart } from "@/context/cart-context"
+import { toast } from "@/components/ui/use-toast"
+import { format, addDays } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import {
-  Search,
-  Grid,
-  List,
-  MapPin,
-  Star,
-  Heart,
-  CalendarIcon,
-  SlidersHorizontal,
-  Clock,
-  DollarSign,
-  User,
-  Shield,
-} from "lucide-react"
-import { format, addDays, differenceInDays } from "date-fns"
+import { Star, Heart, MapPin, Calendar as CalendarIcon, SlidersHorizontal, Search, Grid, List, Clock, Shield } from "lucide-react"
 
 // Mock rental books data
 const rentalBooks = [
@@ -112,211 +102,197 @@ const rentalBooks = [
 ]
 
 interface RentalModalProps {
-  book: (typeof rentalBooks)[0]
+  book: (typeof rentalBooks)[number]
   isOpen: boolean
   onClose: () => void
 }
 
 function RentalModal({ book, isOpen, onClose }: RentalModalProps) {
-  const [startDate, setStartDate] = useState<Date>()
-  const [endDate, setEndDate] = useState<Date>()
-  const [rentalType, setRentalType] = useState<"daily" | "weekly">("weekly")
+  const { addToCart } = useCart()
+  const [days, setDays] = useState(7)
+  const [startDate, setStartDate] = useState<Date>(new Date())
+  const [endDate, setEndDate] = useState<Date>(() => {
+    const date = new Date()
+    date.setDate(date.getDate() + 7)
+    return date
+  })
 
-  const calculatePrice = () => {
-    if (!startDate || !endDate) return 0
-
-    const days = differenceInDays(endDate, startDate) + 1
-
-    if (rentalType === "weekly") {
-      const weeks = Math.ceil(days / 7)
-      return weeks * book.weeklyRate
+  const calculatePrice = (days: number) => {
+    // If daily rate is not defined, calculate it as 1/5th of weekly rate (assuming 5-day work week)
+    const dailyRate = book.dailyRate || (book.weeklyRate / 5)
+    
+    if (days < 7) {
+      // For rentals less than a week, use daily rate
+      return Math.ceil(dailyRate * days * 100) / 100 // Round to 2 decimal places
     } else {
-      return days * book.dailyRate
+      // For a week or more, use weekly rate with daily rate for remaining days
+      const weeks = Math.floor(days / 7)
+      const remainingDays = days % 7
+      const weeklyTotal = weeks * book.weeklyRate
+      const dailyTotal = remainingDays > 0 ? Math.ceil(dailyRate * remainingDays * 100) / 100 : 0
+      return parseFloat((weeklyTotal + dailyTotal).toFixed(2))
     }
   }
 
-  const getRentalDuration = () => {
-    if (!startDate || !endDate) return ""
-
-    const days = differenceInDays(endDate, startDate) + 1
-    const weeks = Math.floor(days / 7)
-    const remainingDays = days % 7
-
-    if (weeks > 0 && remainingDays > 0) {
-      return `${weeks} week${weeks > 1 ? "s" : ""} and ${remainingDays} day${remainingDays > 1 ? "s" : ""}`
-    } else if (weeks > 0) {
-      return `${weeks} week${weeks > 1 ? "s" : ""}`
-    } else {
-      return `${days} day${days > 1 ? "s" : ""}`
-    }
+  const handleDaysChange = (newDays: number) => {
+    setDays(newDays)
+    const end = new Date(startDate)
+    end.setDate(startDate.getDate() + newDays)
+    setEndDate(end)
   }
 
-  const isValidDateRange = () => {
-    if (!startDate || !endDate) return false
-    const days = differenceInDays(endDate, startDate) + 1
-    return days <= book.maxRentalDays && startDate >= book.availableFrom
+  const handleStartDateChange = (date: Date) => {
+    setStartDate(date)
+    const end = new Date(date)
+    end.setDate(date.getDate() + days)
+    setEndDate(end)
+  }
+
+  const handleRentNow = () => {
+    const totalPrice = calculatePrice(days)
+    const isWeekly = days >= 7
+    const rate = isWeekly ? book.weeklyRate : (book.dailyRate || (book.weeklyRate / 5))
+    const rateType = isWeekly ? 'week' : 'day'
+    
+    addToCart({
+      id: book.id.toString(),
+      title: book.title,
+      author: book.author,
+      price: totalPrice,
+      rentPrice: rate,
+      rentPriceType: rateType,
+      image: book.image,
+      condition: book.condition || 'Good',
+      quantity: 1,
+      type: 'rent',
+      rentalDuration: days,
+      rentalStartDate: startDate.toISOString(),
+      rentalEndDate: endDate.toISOString(),
+      seller: book.owner || 'Marketplace',
+    })
+    
+    toast({
+      title: 'Rental Added to Cart',
+      description: `${book.title} has been added to your cart as a rental for ${days} days.`,
+      variant: 'default',
+    })
+    
+    onClose()
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <img src={book.image || "/placeholder.svg"} alt={book.title} className="w-12 h-16 object-cover rounded" />
-            <div>
-              <h3 className="font-semibold">{book.title}</h3>
-              <p className="text-sm text-muted-foreground">{book.author}</p>
-            </div>
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Rent {book.title}</DialogTitle>
+          <DialogDescription>
+            Complete your rental details for {book.title} by {book.author}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Rental Type Selection */}
-          <div>
-            <label className="text-sm font-medium mb-3 block">Rental Type</label>
-            <div className="grid grid-cols-2 gap-3">
-              <Card
-                className={`cursor-pointer transition-colors ${
-                  rentalType === "daily" ? "border-amber-500 bg-amber-50" : ""
-                }`}
-                onClick={() => setRentalType("daily")}
-              >
-                <CardContent className="p-4 text-center">
-                  <DollarSign className="w-6 h-6 mx-auto mb-2 text-green-600" />
-                  <div className="font-semibold">${book.dailyRate}/day</div>
-                  <div className="text-xs text-muted-foreground">Daily Rate</div>
-                </CardContent>
-              </Card>
-              <Card
-                className={`cursor-pointer transition-colors ${
-                  rentalType === "weekly" ? "border-amber-500 bg-amber-50" : ""
-                }`}
-                onClick={() => setRentalType("weekly")}
-              >
-                <CardContent className="p-4 text-center">
-                  <Clock className="w-6 h-6 mx-auto mb-2 text-blue-600" />
-                  <div className="font-semibold">${book.weeklyRate}/week</div>
-                  <div className="text-xs text-muted-foreground">Weekly Rate (Better Value)</div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Date Selection */}
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-6 mt-4">
+          <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Start Date</label>
+              <label className="block text-sm font-medium mb-1">Start Date</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "PPP") : "Pick a date"}
+                    {format(startDate, 'PPP')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
                     selected={startDate}
-                    onSelect={setStartDate}
-                    disabled={(date) => date < book.availableFrom}
+                    onSelect={(date) => date && handleStartDateChange(date)}
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
             </div>
+            
             <div>
-              <label className="text-sm font-medium mb-2 block">End Date</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal bg-transparent">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                    disabled={(date) =>
-                      !startDate || date < startDate || differenceInDays(date, startDate) >= book.maxRentalDays
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          {/* Rental Summary */}
-          {startDate && endDate && (
-            <Card className="bg-muted/30">
-              <CardContent className="p-4">
-                <h4 className="font-semibold mb-3">Rental Summary</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Duration:</span>
-                    <span>{getRentalDuration()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Rate:</span>
-                    <span>
-                      ${rentalType === "weekly" ? book.weeklyRate : book.dailyRate}/
-                      {rentalType === "weekly" ? "week" : "day"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                    <span>Total:</span>
-                    <span className="text-green-600">${calculatePrice().toFixed(2)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Owner Info */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <div className="font-semibold">{book.owner}</div>
-                  <div className="text-sm text-muted-foreground flex items-center">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    {book.location}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                    <span className="text-sm">4.9</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">156 rentals</div>
-                </div>
+              <label className="block text-sm font-medium mb-1">Rental Duration</label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  variant={days === 1 ? "default" : "outline"} 
+                  onClick={() => handleDaysChange(1)}
+                >
+                  1 Day (${(book.dailyRate || (book.weeklyRate / 5)).toFixed(2)})
+                </Button>
+                <Button 
+                  variant={days === 3 ? "default" : "outline"} 
+                  onClick={() => handleDaysChange(3)}
+                >
+                  3 Days (${((book.dailyRate || (book.weeklyRate / 5)) * 3).toFixed(2)})
+                </Button>
+                <Button 
+                  variant={days === 7 ? "default" : "outline"} 
+                  onClick={() => handleDaysChange(7)}
+                >
+                  1 Week (${book.weeklyRate.toFixed(2)})
+                </Button>
+                <Button 
+                  variant={days === 14 ? "default" : "outline"} 
+                  onClick={() => handleDaysChange(14)}
+                >
+                  2 Weeks (${(book.weeklyRate * 2).toFixed(2)})
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Rental Terms */}
-          <div className="text-xs text-muted-foreground space-y-1">
-            <div className="flex items-center">
-              <Shield className="w-3 h-3 mr-1" />
-              <span>Protected by BookHub Rental Guarantee</span>
+              <div className="mt-2">
+                <label className="block text-sm font-medium mb-1">Custom Duration (Days)</label>
+                <Input 
+                  type="number" 
+                  min="1" 
+                  max={book.maxRentalDays || 30}
+                  value={days}
+                  onChange={(e) => handleDaysChange(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
             </div>
-            <div>• Maximum rental period: {book.maxRentalDays} days</div>
-            <div>• Late return fee: $2/day after due date</div>
-            <div>• Damage protection included</div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose} className="flex-1 bg-transparent">
+          <div className="border rounded-lg p-4 space-y-2">
+            <h3 className="font-semibold">Rental Summary</h3>
+            <div className="flex justify-between">
+              <span>Daily Rate:</span>
+              <span>${(book.dailyRate || (book.weeklyRate / 5)).toFixed(2)}/day</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Weekly Rate:</span>
+              <span>${book.weeklyRate.toFixed(2)}/week</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Duration:</span>
+              <span>{days} day{days !== 1 ? 's' : ''}</span>
+            </div>
+            <div className="flex justify-between font-semibold pt-2 border-t mt-2">
+              <span>Total:</span>
+              <span>${calculatePrice(days).toFixed(2)}</span>
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">
+              Rent ends on: {format(endDate, 'PPP')}
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button 
+              variant="outline" 
+              className="flex-1"
+              onClick={onClose}
+            >
               Cancel
             </Button>
-            <Button className="flex-1 bg-amber-600 hover:bg-amber-700" disabled={!isValidDateRange()}>
-              Confirm Rental - ${calculatePrice().toFixed(2)}
+            <Button 
+              className="flex-1 bg-amber-600 hover:bg-amber-700"
+              onClick={handleRentNow}
+            >
+              Confirm Rental
             </Button>
           </div>
         </div>
@@ -337,7 +313,14 @@ export default function RentPage() {
   const [showNearbyOnly, setShowNearbyOnly] = useState(false)
   const [showAvailableOnly, setShowAvailableOnly] = useState(false)
   const [wishlistedBooks, setWishlistedBooks] = useState<number[]>([])
-  const [selectedBook, setSelectedBook] = useState<(typeof rentalBooks)[0] | null>(null)
+  const [selectedBook, setSelectedBook] = useState<(typeof rentalBooks)[number] | null>(null)
+  const [isRentalModalOpen, setIsRentalModalOpen] = useState(false)
+  const { addToCart } = useCart()
+
+  const handleRentClick = (book: (typeof rentalBooks)[number]) => {
+    setSelectedBook(book)
+    setIsRentalModalOpen(true)
+  }
 
   // Get unique values for filters
   const categories = [...new Set(rentalBooks.map((book) => book.category))]
@@ -387,23 +370,22 @@ export default function RentPage() {
 
   // Sort logic
   const sortedBooks = useMemo(() => {
-    const sorted = [...filteredBooks]
-    switch (sortBy) {
-      case "price-low":
-        return sorted.sort((a, b) => a.weeklyRate - b.weeklyRate)
-      case "price-high":
-        return sorted.sort((a, b) => b.weeklyRate - a.weeklyRate)
-      case "rating":
-        return sorted.sort((a, b) => b.rating - a.rating)
-      case "newest":
-        return sorted.sort((a, b) => b.publishYear - a.publishYear)
-      case "distance":
-        return sorted.sort(
-          (a, b) => Number.parseFloat(a.location.split(" ")[0]) - Number.parseFloat(b.location.split(" ")[0]),
-        )
-      default:
-        return sorted
-    }
+    return [...filteredBooks].sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.weeklyRate - b.weeklyRate
+        case "price-high":
+          return b.weeklyRate - a.weeklyRate
+        case "rating":
+          return b.rating - a.rating
+        case "newest":
+          return b.publishYear - a.publishYear
+        case "distance":
+          return Number.parseFloat(a.location.split(" ")[0]) - Number.parseFloat(b.location.split(" ")[0])
+        default:
+          return 0
+      }
+    })
   }, [filteredBooks, sortBy])
 
   const toggleWishlist = (bookId: number) => {
@@ -529,13 +511,21 @@ export default function RentPage() {
                   <label className="text-sm font-medium">Availability</label>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="available-now" checked={showAvailableOnly} onCheckedChange={setShowAvailableOnly} />
+                      <Checkbox 
+                        id="available-now" 
+                        checked={showAvailableOnly} 
+                        onCheckedChange={(checked) => setShowAvailableOnly(checked === true)} 
+                      />
                       <label htmlFor="available-now" className="text-sm">
                         Available Now
                       </label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="nearby" checked={showNearbyOnly} onCheckedChange={setShowNearbyOnly} />
+                      <Checkbox 
+                        id="nearby" 
+                        checked={showNearbyOnly} 
+                        onCheckedChange={(checked) => setShowNearbyOnly(checked === true)} 
+                      />
                       <label htmlFor="nearby" className="text-sm">
                         Nearby Only (within 3 miles)
                       </label>
@@ -637,7 +627,7 @@ export default function RentPage() {
                                   Available {format(book.availableFrom, "MMM d")}
                                 </Badge>
                               )}
-                              {book.badges.map((badge, index) => (
+                              {book.badges.map((badge: string, index: number) => (
                                 <Badge key={index} className="text-xs bg-amber-500 hover:bg-amber-600">
                                   {badge}
                                 </Badge>
@@ -703,9 +693,8 @@ export default function RentPage() {
                               <Button
                                 size="sm"
                                 className="w-full bg-amber-600 hover:bg-amber-700"
-                                onClick={() => setSelectedBook(book)}
+                                onClick={() => handleRentClick(book)}
                               >
-                                <CalendarIcon className="w-4 h-4 mr-1" />
                                 Rent Now
                               </Button>
                             </div>
@@ -774,7 +763,7 @@ export default function RentPage() {
                               <Button
                                 size="sm"
                                 className="bg-amber-600 hover:bg-amber-700"
-                                onClick={() => setSelectedBook(book)}
+onClick={() => handleRentClick(book)}
                               >
                                 <CalendarIcon className="w-4 h-4 mr-1" />
                                 Rent Now
@@ -809,7 +798,14 @@ export default function RentPage() {
 
       {/* Rental Modal */}
       {selectedBook && (
-        <RentalModal book={selectedBook} isOpen={!!selectedBook} onClose={() => setSelectedBook(null)} />
+        <RentalModal 
+          book={selectedBook} 
+          isOpen={isRentalModalOpen} 
+          onClose={() => {
+            setIsRentalModalOpen(false)
+            setSelectedBook(null)
+          }} 
+        />
       )}
     </div>
   )

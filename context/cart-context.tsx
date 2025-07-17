@@ -51,7 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         toast({
           title: "Item Added",
           description: `${item.title} added to your cart.`,
-          variant: "success",
+          variant: "default",
         })
         return [...prevItems, { ...item, quantity: item.quantity || 1 }]
       }

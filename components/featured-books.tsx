@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Star, Heart, ShoppingCart, Calendar, Eye } from "lucide-react"
+import { RentalConfirmationModal } from "@/components/rental-confirmation-modal"
 
 const featuredBooks = [
   {
@@ -69,27 +70,61 @@ const featuredBooks = [
 
 export function FeaturedBooks() {
   const [hoveredBook, setHoveredBook] = useState<number | null>(null)
+  const [rentalModalOpen, setRentalModalOpen] = useState(false)
+  const [selectedBook, setSelectedBook] = useState<any>(null)
   const { addToCart } = useCart()
 
   const handleAddToCart = (book: any, type: 'buy' | 'rent') => {
+    if (type === 'rent') {
+      setSelectedBook(book)
+      setRentalModalOpen(true)
+    } else {
+      addToCart({
+        id: book.id.toString(),
+        title: book.title,
+        author: book.author,
+        price: book.price ?? 0,
+        rentPrice: book.rentPrice,
+        image: book.image,
+        condition: book.condition || 'Good',
+        quantity: 1,
+        type: 'buy',
+        seller: book.seller || 'Marketplace',
+      })
+      toast({
+        title: 'Added to Cart',
+        description: `${book.title} has been added to your cart as a purchase.`,
+        variant: 'success',
+      })
+    }
+  }
+
+  const handleRentalConfirm = (rentalData: { startDate: Date; endDate: Date; price: number }) => {
+    if (!selectedBook) return
+    
     addToCart({
-      id: book.id.toString(),
-      title: book.title,
-      author: book.author,
-      price: book.price ?? 0,
-      rentPrice: book.rentPrice,
-      image: book.image,
-      condition: book.condition || 'Good',
+      id: selectedBook.id.toString(),
+      title: selectedBook.title,
+      author: selectedBook.author,
+      price: selectedBook.price ?? 0,
+      rentPrice: selectedBook.rentPrice,
+      image: selectedBook.image,
+      condition: selectedBook.condition || 'Good',
       quantity: 1,
-      type,
-      rentalDuration: type === 'rent' ? 1 : undefined,
-      seller: book.seller || 'Marketplace',
+      type: 'rent',
+      rentalDuration: Math.ceil((rentalData.endDate.getTime() - rentalData.startDate.getTime()) / (1000 * 60 * 60 * 24 * 7)),
+      rentalStartDate: rentalData.startDate.toISOString(),
+      rentalEndDate: rentalData.endDate.toISOString(),
+      seller: selectedBook.seller || 'Marketplace',
     })
+    
     toast({
-      title: 'Added to Cart',
-      description: `${book.title} has been added to your cart as a ${type === 'buy' ? 'purchase' : 'rental'}.`,
+      title: 'Rental Added to Cart',
+      description: `${selectedBook.title} has been added to your cart as a rental.`,
       variant: 'success',
     })
+    
+    setRentalModalOpen(false)
   }
 
   return (
@@ -210,6 +245,16 @@ export function FeaturedBooks() {
           </Button>
         </div>
       </div>
+
+      {/* Rental Confirmation Modal */}
+      {selectedBook && (
+        <RentalConfirmationModal
+          isOpen={rentalModalOpen}
+          onClose={() => setRentalModalOpen(false)}
+          book={selectedBook}
+          onConfirm={handleRentalConfirm}
+        />
+      )}
     </section>
   )
 }
