@@ -99,9 +99,12 @@ const ChatWindow = () => {
   const book = currentData.book;
   const quickReplies = currentData.quickReplies;
 
+  // Only scroll to bottom when a new message is sent by the user
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, selectedConversationId]);
+    if (messages.length > 0 && messages[messages.length - 1].sender === "me") {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const handleSend = (e?: React.FormEvent, quick?: string) => {
     if (e) e.preventDefault();
@@ -124,15 +127,15 @@ const ChatWindow = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] max-h-[100dvh] bg-white">
+    <div className="flex h-[100dvh] max-h-[100dvh] bg-white dark:bg-zinc-900">
       {/* Sidebar */}
-      <aside className="w-64 min-w-[200px] border-r bg-gray-50 flex flex-col">
-        <div className="p-4 border-b font-bold text-lg">Messages</div>
+      <aside className="w-64 min-w-[200px] border-r border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800 flex flex-col">
+        <div className="p-4 border-b border-gray-100 dark:border-zinc-800 font-bold text-lg text-gray-900 dark:text-white">Messages</div>
         <div className="flex-1 overflow-y-auto">
           {sidebarConversations.map((conv: Conversation) => (
             <div
               key={conv.id}
-              className={`px-4 py-3 cursor-pointer flex flex-col border-b hover:bg-amber-50 transition ${conv.id === selectedConversationId ? "bg-amber-50 font-semibold" : ""}`}
+              className={`px-4 py-3 cursor-pointer flex flex-col border-b border-gray-100 dark:border-zinc-800 hover:bg-amber-50 dark:hover:bg-zinc-700 transition ${conv.id === selectedConversationId ? "bg-amber-50 dark:bg-zinc-700 font-semibold" : ""}`}
               onClick={() => setSelectedConversationId(conv.id)}
             >
               <div className="flex items-center justify-between">
@@ -141,7 +144,7 @@ const ChatWindow = () => {
                   <span className="ml-2 bg-amber-500 text-white rounded-full px-2 py-0.5 text-xs font-bold">{conv.unread}</span>
                 )}
               </div>
-              <span className="text-xs text-gray-500 truncate max-w-full">{conv.last}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-300 truncate max-w-full">{conv.last}</span>
             </div>
           ))}
         </div>
@@ -149,26 +152,26 @@ const ChatWindow = () => {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col h-full">
         {/* Book banner + Seller info */}
-        <div className="flex items-center gap-4 bg-amber-50 p-4 border-b">
+        <div className="flex items-center gap-4 bg-amber-50 dark:bg-zinc-800 p-4 border-b border-gray-100 dark:border-zinc-800">
           <img
             src={book.cover}
             alt={book.title}
-            className="w-14 h-20 rounded-lg object-cover border"
+            className="w-14 h-20 rounded-lg object-cover border border-gray-200 dark:border-zinc-700"
           />
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-lg truncate">{book.title}</div>
-            <div className="text-amber-600 font-bold">{book.price}</div>
+            <div className="font-semibold text-lg truncate text-gray-900 dark:text-white">{book.title}</div>
+            <div className="text-amber-600 dark:text-amber-400 font-bold">{book.price}</div>
           </div>
           {/* Seller info */}
           <div className="flex items-center gap-3 mr-4">
             <img
               src={currentData.seller.avatar}
               alt={currentData.seller.name}
-              className="w-10 h-10 rounded-full border object-cover bg-white"
+              className="w-10 h-10 rounded-full border border-gray-200 dark:border-zinc-700 object-cover bg-white dark:bg-zinc-900"
             />
             <div className="flex flex-col min-w-0">
-              <span className="font-semibold text-gray-800 truncate max-w-[120px]">{currentData.seller.name}</span>
-              <span className="text-xs text-gray-500 truncate max-w-[120px]">{currentData.seller.status}</span>
+              <span className="font-semibold text-gray-800 dark:text-white truncate max-w-[120px]">{currentData.seller.name}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-300 truncate max-w-[120px]">{currentData.seller.status}</span>
             </div>
           </div>
           {/* Call button placeholder */}
@@ -177,7 +180,7 @@ const ChatWindow = () => {
           </button>
         </div>
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-4 bg-white">
+        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-4 bg-white dark:bg-zinc-900">
           {messages.map((msg: Message) => (
             <div
               key={msg.id}
@@ -187,24 +190,24 @@ const ChatWindow = () => {
                 <div
                   className={`relative px-4 py-2 rounded-2xl text-sm shadow-md break-words ${
                     msg.sender === "me"
-                      ? "bg-yellow-100 text-gray-900 rounded-br-md"
-                      : "bg-gray-100 text-gray-900 rounded-bl-md"
+                      ? "bg-yellow-100 dark:bg-amber-900 text-gray-900 dark:text-yellow-100 rounded-br-md"
+                      : "bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 rounded-bl-md"
                   }`}
                 >
                   {msg.text && <span>{msg.text}</span>}
                   {msg.image && (
                     <div className="mt-2">
-                      <div className="w-32 h-32 bg-yellow-100 border-2 border-yellow-300 rounded-lg flex items-center justify-center">
+                      <div className="w-32 h-32 bg-yellow-100 dark:bg-amber-900 border-2 border-yellow-300 dark:border-amber-700 rounded-lg flex items-center justify-center">
                         <img src={msg.url} alt="attachment" className="object-contain w-full h-full rounded-lg" />
                       </div>
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
+                <div className="flex items-center gap-1 mt-1 text-xs text-gray-400 dark:text-gray-300">
                   <span>{msg.timestamp}</span>
                   {msg.sender === "me" && (
                     <span title={msg.seen ? "Seen" : "Delivered"} className="ml-1">
-                      <CheckCheck className={`inline h-4 w-4 ${msg.seen ? "text-blue-500" : "text-gray-300"}`} />
+                      <CheckCheck className={`inline h-4 w-4 ${msg.seen ? "text-blue-500 dark:text-blue-400" : "text-gray-300 dark:text-gray-500"}`} />
                     </span>
                   )}
                 </div>
@@ -218,7 +221,7 @@ const ChatWindow = () => {
           {quickReplies.map((q: string, i: number) => (
             <button
               key={i}
-              className="bg-gray-100 hover:bg-amber-100 text-gray-700 rounded-full px-4 py-1 text-xs border border-gray-200 transition"
+              className="bg-gray-100 dark:bg-zinc-800 hover:bg-amber-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-200 rounded-full px-4 py-1 text-xs border border-gray-200 dark:border-zinc-700 transition"
               onClick={() => handleSend(undefined, q)}
               type="button"
             >
@@ -227,7 +230,7 @@ const ChatWindow = () => {
           ))}
         </div>
         {/* Input bar */}
-        <form className="border-t bg-white px-8 py-3 flex items-center gap-2" onSubmit={handleSend}>
+        <form className="border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-8 py-3 flex items-center gap-2 sticky bottom-0 z-10" onSubmit={handleSend}>
           <button
             className="p-2 rounded-full hover:bg-gray-100 text-gray-500"
             title="Emoji picker"
@@ -245,7 +248,7 @@ const ChatWindow = () => {
           <input
             type="text"
             placeholder="Type a message..."
-            className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:border-amber-500 bg-gray-50"
+            className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:border-amber-500 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-700"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) handleSend(e); }}

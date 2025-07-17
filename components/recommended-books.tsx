@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useCart } from "@/context/cart-context"
+import { toast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -74,6 +76,27 @@ const recommendedBooks = {
 
 export function RecommendedBooks() {
   const [activeTab, setActiveTab] = useState("ai-picks")
+  const { addToCart } = useCart()
+
+  const handleAddToCart = (book: any) => {
+    addToCart({
+      id: book.id.toString(),
+      title: book.title,
+      author: book.author,
+      price: book.price ?? 0,
+      rentPrice: book.rentPrice,
+      image: book.image,
+      condition: book.condition || 'Good',
+      quantity: 1,
+      type: 'buy',
+      seller: book.seller || 'Marketplace',
+    })
+    toast({
+      title: 'Added to Cart',
+      description: `${book.title} has been added to your cart as a purchase.`,
+      variant: 'success',
+    })
+  }
 
   return (
     <section className="py-16 bg-background">
@@ -144,7 +167,7 @@ export function RecommendedBooks() {
 
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-green-600">${book.price}</span>
-                        <Button size="sm" className="bg-amber-600 hover:bg-amber-700">
+                        <Button size="sm" className="bg-amber-600 hover:bg-amber-700" onClick={() => handleAddToCart(book)}>
                           <ShoppingCart className="w-4 h-4 mr-1" />
                           Add to Cart
                         </Button>
@@ -199,7 +222,7 @@ export function RecommendedBooks() {
 
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-green-600">${book.price}</span>
-                        <Button size="sm" className="bg-amber-600 hover:bg-amber-700">
+                        <Button size="sm" className="bg-amber-600 hover:bg-amber-700" onClick={() => handleAddToCart(book)}>
                           <ShoppingCart className="w-4 h-4 mr-1" />
                           Add to Cart
                         </Button>
@@ -254,7 +277,7 @@ export function RecommendedBooks() {
 
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-green-600">${book.price}</span>
-                        <Button size="sm" className="bg-amber-600 hover:bg-amber-700">
+                        <Button size="sm" className="bg-amber-600 hover:bg-amber-700" onClick={() => handleAddToCart(book)}>
                           <ShoppingCart className="w-4 h-4 mr-1" />
                           Add to Cart
                         </Button>

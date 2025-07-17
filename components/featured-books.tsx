@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useCart } from "@/context/cart-context"
+import { toast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Star, Heart, ShoppingCart, Calendar, Eye } from "lucide-react"
@@ -67,6 +69,28 @@ const featuredBooks = [
 
 export function FeaturedBooks() {
   const [hoveredBook, setHoveredBook] = useState<number | null>(null)
+  const { addToCart } = useCart()
+
+  const handleAddToCart = (book: any, type: 'buy' | 'rent') => {
+    addToCart({
+      id: book.id.toString(),
+      title: book.title,
+      author: book.author,
+      price: book.price ?? 0,
+      rentPrice: book.rentPrice,
+      image: book.image,
+      condition: book.condition || 'Good',
+      quantity: 1,
+      type,
+      rentalDuration: type === 'rent' ? 1 : undefined,
+      seller: book.seller || 'Marketplace',
+    })
+    toast({
+      title: 'Added to Cart',
+      description: `${book.title} has been added to your cart as a ${type === 'buy' ? 'purchase' : 'rental'}.`,
+      variant: 'success',
+    })
+  }
 
   return (
     <section className="py-16 bg-background">
@@ -114,22 +138,18 @@ export function FeaturedBooks() {
                     </Button>
                   </div>
 
-                  {/* Quick Actions Overlay */}
+                  {/* Quick Actions Overlay - removed Buy/Rent buttons from overlay, only show icon buttons if needed */}
                   <div
-                    className={`absolute inset-0 bg-black/60 flex items-center justify-center gap-3 transition-opacity duration-300 ${
+                    className={`absolute top-3 right-3 flex flex-col gap-2 transition-opacity duration-300 ${
                       hoveredBook === book.id ? "opacity-100" : "opacity-0"
                     }`}
                   >
-                    <Button className="bg-amber-600 hover:bg-amber-700">
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Buy Now
+                    <Button size="icon" variant="secondary" className="rounded-full">
+                      <Heart className="w-4 h-4" />
                     </Button>
-                    {book.isRentable && (
-                      <Button variant="outline" className="bg-white/90 hover:bg-white">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Rent
-                      </Button>
-                    )}
+                    <Button size="icon" variant="secondary" className="rounded-full">
+                      <Eye className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
 
@@ -167,12 +187,12 @@ export function FeaturedBooks() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button size="sm" className="flex-1 bg-amber-600 hover:bg-amber-700">
+                    <Button size="sm" className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={() => handleAddToCart(book, 'buy')}>
                       <ShoppingCart className="w-4 h-4 mr-1" />
                       Buy
                     </Button>
                     {book.isRentable && (
-                      <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                      <Button size="sm" variant="outline" className="flex-1 bg-transparent" onClick={() => handleAddToCart(book, 'rent')}>
                         <Calendar className="w-4 h-4 mr-1" />
                         Rent
                       </Button>

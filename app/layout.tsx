@@ -6,6 +6,9 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Header } from "@/components/header"
 import { Toaster } from "@/components/ui/toaster"
 import { Providers } from "@/components/providers"
+import { Footer } from "@/components/footer"
+import { FooterConditional } from "@/components/FooterConditional"
+
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -20,6 +23,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
+  // Hide footer on chat pages
+  const showFooter = !pathname.startsWith("/chat");
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -27,6 +33,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <Header />
             <main>{children}</main>
+            <FooterConditional />
             <Toaster />
           </ThemeProvider>
         </Providers>
