@@ -33,16 +33,16 @@ const bookData = {
   price: 15.99,
   rentPrice: 3.99,
   rating: 4.8,
-  reviews: 1234,
+  reviews: 1087,
   condition: "Like New",
   images: [
-    "/placeholder.svg?height=600&width=400",
-    "/placeholder.svg?height=600&width=400",
-    "/placeholder.svg?height=600&width=400",
+    "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/52578297.jpg",
+    "https://shegetsaround.co.uk/wp-content/uploads/2021/01/IMG_6769-768x1024.jpg",
+    "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi2izQyoHVYvUWk1nrKErQRTTEXMWwkVtrdQqhuTdmPXWuLCsi85Uly-2qjYyHnWEfrp2R45lTWrVuqDBi8sLxHorhtjfKhyKY0Oitt0lWGQxHb26Tzp1XPdICyfXzkviAhfIW8vAOE8SQb/s1512/The+Midnight+Library.jpeg",
   ],
   seller: {
     name: "BookLover123",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&auto=format&fit=crop&q=80",
     rating: 4.9,
     totalSales: 156,
     joinDate: "2022",
@@ -71,7 +71,7 @@ const reviews = [
   {
     id: 1,
     user: "ReadingEnthusiast",
-    avatar: "/placeholder.svg?height=32&width=32",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80",
     rating: 5,
     date: "2 weeks ago",
     comment: "Absolutely loved this book! The concept is fascinating and the writing is beautiful. Highly recommend!",
@@ -79,8 +79,8 @@ const reviews = [
   },
   {
     id: 2,
-    user: "BookwormBella",
-    avatar: "/placeholder.svg?height=32&width=32",
+    user: "BookwormNaina",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&auto=format&fit=crop&q=80",
     rating: 4,
     date: "1 month ago",
     comment:
