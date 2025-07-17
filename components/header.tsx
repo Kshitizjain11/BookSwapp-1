@@ -90,10 +90,12 @@ export function Header() {
                   </Link>
                 </Button>
 
-                <Button variant="ghost" size="icon" className="relative">
-                  <MessageCircle className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-red-500">3</Badge>
-                </Button>
+                <Button variant="ghost" size="icon" className="relative" asChild>
+  <Link href="/chat">
+    <MessageCircle className="h-5 w-5" />
+    <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-red-500">3</Badge>
+  </Link>
+</Button>
 
                 <Button variant="ghost" size="icon" className="relative" onClick={() => setIsNotificationsOpen(true)}>
                   <Bell className="h-5 w-5" />
