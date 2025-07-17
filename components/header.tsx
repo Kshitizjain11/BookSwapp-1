@@ -50,7 +50,7 @@ export function Header() {
             <Link href="/" className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-amber-600" />
               <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                BookHub
+                BookSwap
               </span>
             </Link>
 
